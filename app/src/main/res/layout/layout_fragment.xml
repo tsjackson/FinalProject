@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".View.DialogFragment"
+    android:background="@drawable/hearthstonewoodackground">
+
+    <ImageView
+        android:id="@+id/iv_cardImage"
+        android:layout_width="175dp"
+        android:layout_height="175dp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_cardName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@mipmap/ic_launcher" />
+
+    <TextView
+        android:id="@+id/tv_class"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@+id/iv_cardImage"
+        app:layout_constraintTop_toBottomOf="@+id/tv_cardSet" />
+
+    <TextView
+        android:id="@+id/tv_cardName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@+id/iv_cardImage"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:textColor="@color/white"
+        android:id="@+id/tv_cardSet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txt_cardset"
+        app:layout_constraintBottom_toTopOf="@+id/tv_class"
+        app:layout_constraintStart_toEndOf="@+id/iv_cardImage"
+        app:layout_constraintTop_toBottomOf="@+id/tv_cardName" />
+
+    <TextView
+        android:id="@+id/tv_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@+id/iv_cardImage"
+        app:layout_constraintTop_toBottomOf="@+id/tv_playerClass" />
+
+    <TextView
+        android:id="@+id/tv_rarity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="136dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="117dp"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_type"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_flavor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_cardImage" />
+
+    <TextView
+        android:id="@+id/tv_playerClass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@+id/iv_cardImage"
+        app:layout_constraintTop_toBottomOf="@+id/tv_class" />
+
+    <TextView
+        android:id="@+id/tv_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lines="3"
+        android:layout_marginStart="140dp"
+        android:layout_marginTop="58dp"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@+id/tv_flavor"
+        app:layout_constraintTop_toBottomOf="@+id/tv_rarity" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

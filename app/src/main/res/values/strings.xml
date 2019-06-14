@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">FinalProject</string>
+    <string name="btn_search">Search</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="txt_hero">Hero</string>
+    <string name="text_card_name">Card Name</string>
+    <string name="txt_cardset">CardSet</string>
+    <string name="search_title">String</string>
+    <string name="search_hint">String</string>
+</resources>

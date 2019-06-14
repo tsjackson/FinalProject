@@ -1,0 +1,6350 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "The following documentation covers all publicly available APIs.<br><br>Kroger APIs are designed to give applications a way to interact with store data and cater to the customer experience. If this is your first time using our APIs, we have provided additional [authentication documents](https://developer.kroger.com/documentation/authenticate/overview) to make your integration seamless.\n\n# Authentication\n\n<!-- ReDoc-Inject: <security-definitions> -->",
+    "version": "1.0.0",
+    "title": "Kroger API Reference",
+    "termsOfService": "https://developer.kroger.com/terms",
+    "contact": {
+      "name": "API Support",
+      "email": "APISupport@kroger.com"
+    }
+  },
+  "security": [
+    {
+      "User_Context": [
+        "profile.name",
+        "profile.basic",
+        "profile.full",
+        "profile.loyalty",
+        "product.basic",
+        "product.personalized",
+        "cart.basic",
+        "cart.basic:rw",
+        "coupon.basic",
+        "coupon.personalized",
+        "coupon.personalized:rw",
+        "collection.basic",
+        "collection.basic:rw"
+      ]
+    },
+    {
+      "Client_Context": [
+        "profile.exists",
+        "product.basic",
+        "coupon.basic",
+        "coupon.personalized",
+        "coupon.personalized:rw"
+      ]
+    }
+  ],
+  "paths": {
+    "/identity/profile": {
+      "get": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Profile information",
+        "description": "Allows you to returns the profile information for a specific user. The authorization code flow provides the user with additional context.",
+        "operationId": "profileGet",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/identity.profileModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "profile.name",
+              "profile.basic",
+              "profile.full",
+              "profile.loyalty"
+            ]
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Profile query",
+        "description": "Allows you to determine if a specific user profile exists.",
+        "operationId": "ProfileExists",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Email Address",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": [
+          {
+            "Client_Context": [
+              "profile.exists"
+            ]
+          }
+        ]
+      }
+    },
+    "/identity/profile/loyalty": {
+      "get": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Profile loyalty information",
+        "description": "Allows you to returns the profile loyalty information for a specific user. The authorization code flow provides the user with additional context.",
+        "operationId": "profileLoyaltyGet",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/identity.profileLoyaltyResponseModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "profile.loyalty"
+            ]
+          }
+        ]
+      }
+    },
+    "/identity/profile/invoke/exists": {
+      "get": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Profile query",
+        "description": "Allows you to determine if a specific user profile exists. ",
+        "operationId": "ProfileInvokeExists",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Email Address",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": [
+          {
+            "Client_Context": [
+              "profile.exists"
+            ]
+          }
+        ]
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": [
+          "products"
+        ],
+        "summary": "Product list",
+        "description": "Allows you to return a list of products by parameters.",
+        "operationId": "productGet",
+        "parameters": [
+          {
+            "name": "filter.term",
+            "in": "query",
+            "description": "Filter by a term. For example, you can filter for 'milk', 'bread', or 'salt'.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.locationId",
+            "in": "query",
+            "description": "The locationID of a store.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 8
+            }
+          },
+          {
+            "name": "filter.productId",
+            "in": "query",
+            "description": "A comma-separated list of product IDs. Must be used with the location ID filter to enhance items with prices. Ignore all other filters when used.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.brand",
+            "in": "query",
+            "description": "A pipe-separated list of case-sensitive brand names.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.fulfillment",
+            "in": "query",
+            "description": "A comma-separated list of case-insensitive fulfillment types. For example, 'ais' is Available In Stores, 'csp' is Curb Side Pickup, and 'sth' is Ship to Home.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.start",
+            "in": "query",
+            "description": "The number of records you want to skip",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "filter.limit",
+            "in": "query",
+            "description": "The number of records you want returned, with a maximum of 200. ",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/products.productsPayloadModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "product.personalized",
+              "product.basic"
+            ]
+          },
+          {
+            "Client_Context": [
+              "product.basic"
+            ]
+          }
+        ]
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": [
+          "products"
+        ],
+        "summary": "Product by item ID or UPC",
+        "description": "Allows you to return a single product by either the item ID or the item UPC.",
+        "operationId": "productGetID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 13,
+              "maxLength": 13
+            }
+          },
+          {
+            "name": "filter.locationId",
+            "in": "query",
+            "description": "The locationID of a store.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 8
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/products.productPayloadModel"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "product.personalized",
+              "product.basic"
+            ]
+          },
+          {
+            "Client_Context": [
+              "product.basic"
+            ]
+          }
+        ]
+      }
+    },
+    "/carts": {
+      "get": {
+        "tags": [
+          "carts"
+        ],
+        "summary": "User carts list",
+        "description": "Allows you to return a list of all carts for a specific user.",
+        "operationId": "getCarts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/carts.cartsPayloadModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "cart.basic"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "carts"
+        ],
+        "summary": "Create a cart",
+        "description": "Allows you to create a new cart for a specific user.",
+        "operationId": "createCart",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/carts.cartRequestModel"
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/carts.cartsPayloadModel"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "cart.basic:rw"
+            ]
+          }
+        ]
+      }
+    },
+    "/carts/{id}": {
+      "get": {
+        "tags": [
+          "carts"
+        ],
+        "summary": "Cart by ID",
+        "description": "Allows you to return a cart by the cart ID.",
+        "operationId": "getCart",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/carts.cartPayloadModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "cart not fulfillable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "cart.basic"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "carts"
+        ],
+        "summary": "Update cart",
+        "description": "Allows you to update a cart for a specific user.",
+        "operationId": "putCart",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/carts.cartRequestModel"
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/carts.cartsPayloadModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "cart not fulfillable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "cart.basic:rw"
+            ]
+          }
+        ]
+      }
+    },
+    "/carts/{id}/items": {
+      "post": {
+        "tags": [
+          "carts"
+        ],
+        "summary": "Add to cart",
+        "description": "Allows you to add items to a cart on behalf of a user.",
+        "operationId": "postCartItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/carts.cartItemPostRequestModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "created"
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "cart not fulfillable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "cart.basic:rw"
+            ]
+          }
+        ]
+      }
+    },
+    "/carts/{id}/items/{upc}": {
+      "put": {
+        "tags": [
+          "carts"
+        ],
+        "summary": "Updates item quantity",
+        "description": "Allows you to update the quantity of an item in a users cart.",
+        "operationId": "putCartItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "upc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 13,
+              "maxLength": 13
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/carts.cartItemPutRequestModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "NO CONTENT"
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "cart not fulfillable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "cart.basic:rw"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "carts"
+        ],
+        "summary": "Delete item",
+        "description": "Allows you to delete an item from a users cart.",
+        "operationId": "deleteCartItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "upc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 13,
+              "maxLength": 13
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "NO CONTENT"
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "cart not fulfillable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "cart.basic:rw"
+            ]
+          }
+        ]
+      }
+    },
+    "/chains": {
+      "get": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Chain list",
+        "description": "Allows you to get a list of chains owned by The Kroger Co. family of stores.",
+        "operationId": "ListChains",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/locations.chainsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/chains/{name}": {
+      "get": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Chain details",
+        "description": "Allows you to get details for a specific chain by name.",
+        "operationId": "GetChain",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Chain Name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/locations.chainResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": []
+      },
+      "head": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Chain query",
+        "description": "Allows you to determine if a specific chain exists.",
+        "operationId": "ChainExists",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Chain Name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": []
+      }
+    },
+    "/departments": {
+      "get": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Department list",
+        "description": "Allows you to get a list of departments.",
+        "operationId": "ListDepartments",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/locations.departmentsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/departments/{id}": {
+      "get": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Department Details",
+        "description": "Allows you to get department details using a department ID.",
+        "operationId": "GetDepartment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Department ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/locations.departmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": []
+      },
+      "head": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Department query",
+        "description": "Allows you to determine if a specific department exists.",
+        "operationId": "DepartmentExists",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Department ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "NOT FOUND"
+          }
+        },
+        "security": []
+      }
+    },
+    "/locations": {
+      "get": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Location list",
+        "description": "Allows you to get a list of locations that match given criteria. You must either use a ZIP Code (zipCode query parameter) or a Latitude and Longitude (lat and lon or latLong query parameter) as a starting point. If using multiple query parameters as a starting point, an error will ask you to reduce your number of starting points to one. By default, results are limited to 10 locations within a 10-mile radius of the starting point.",
+        "operationId": "SearchLocations",
+        "parameters": [
+          {
+            "name": "filter.zipCode.near",
+            "in": "query",
+            "description": "ZIP Code (required, unless filter.latLong.near or filter.lat.near and filter.lon.near are provided)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.latLong.near",
+            "in": "query",
+            "description": "Latitude,Longitude (required, unless filter.zipCode.near or filter.lat.near and filter.lon.near are provided)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.lat.near",
+            "in": "query",
+            "description": "Latitude (required, unless filter.zipCode.near or filter.latLong.near are provided)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.lon.near",
+            "in": "query",
+            "description": "Longitude (required, unless filter.zipCode.near or filter.latLong.near are provided)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.radiusInMiles",
+            "in": "query",
+            "description": "Seach Area Limit (optional, limits the search area of the results displayed from the center of the search location. The range is between 1 and 100 with a 10-mile default.)",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "filter.limit",
+            "in": "query",
+            "description": "Result Limit (optional, limits the number of results displayed. The range is between 1 and 200 with a default of 10.)",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "filter.chain",
+            "in": "query",
+            "description": "Chain Name (optional, returns only stores matching the chain.)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.department",
+            "in": "query",
+            "description": "Department ID (optional, A comma-separated list of departments. Returns only stores with all departments specified.)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/locations.locationSearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/locations/{locationId}": {
+      "get": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Location by ID",
+        "description": "Allows you to get specific location details by locationID. The locationID is the same one returned from the location search (an 8-digit ID, composed of the Management Division Number followed by the Store Number).",
+        "operationId": "LocationsGetByID",
+        "parameters": [
+          {
+            "name": "locationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 8
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/locations.locationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "incorrect locationId format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "location not found"
+          },
+          "500": {
+            "description": "error looking up location"
+          }
+        },
+        "security": []
+      },
+      "head": {
+        "tags": [
+          "locations"
+        ],
+        "summary": "Location query",
+        "description": "Allows you to determine if a location exists by locationID. The locationID is the same one returned from the location search (an 8-digit ID, composed of the Management Division Number followed by the Store Number).",
+        "operationId": "LocationsExistsByID",
+        "parameters": [
+          {
+            "name": "locationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 8
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "location exists"
+          },
+          "400": {
+            "description": "incorrect locationId format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "location does not exist"
+          },
+          "500": {
+            "description": "error looking up location"
+          }
+        },
+        "security": []
+      }
+    },
+    "/collections": {
+      "get": {
+        "tags": [
+          "collections"
+        ],
+        "summary": "Collections list",
+        "description": "Allows you to get a list of collections for a user.",
+        "parameters": [
+          {
+            "name": "filter.name",
+            "in": "query",
+            "description": "List Name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.type",
+            "in": "query",
+            "description": "List Type",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/collections.getCollectionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD REQUEST"
+          },
+          "500": {
+            "description": "SERVER CONFIGURATION ISSUE"
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "collection.basic",
+              "collection.basic:rw"
+            ]
+          }
+        ]
+      }
+    },
+    "/coupons": {
+      "get": {
+        "tags": [
+          "coupons"
+        ],
+        "summary": "Coupon list",
+        "description": "Allows you to get a list of scored coupons.",
+        "operationId": "CouponsGet",
+        "parameters": [
+          {
+            "name": "X-Correlation-ID",
+            "in": "header",
+            "description": "A unique value to use when identifying this particular request<br><pre>X-Correlation-ID: f3f45cb84b107da9a9803e35b0c811ec</pre>",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.merchant",
+            "in": "query",
+            "description": "Using filter criteria: <b>merchant</b><br><pre>filter.merchant=KROGER</pre>",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.locationId",
+            "in": "query",
+            "description": "Using filter criteria: <b>location id (division and store number)</b><br><pre>filter.locationId=01400448</pre>",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{8}$"
+            }
+          },
+          {
+            "name": "filter.productId",
+            "in": "query",
+            "description": "Using filter criteria: <b>productId</b><br><pre>filter.productId=0088790705318,0001429980120</pre>",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter.channels",
+            "in": "query",
+            "description": "A comma-separated list of channel identifiers to add to the response.<BR>Using filter criteria: <b>channels</b><br><pre>filter.channels=WEB,MOBILE</pre>",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/coupons.responseModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request (Invalid query parameters - filter, sort, pagination, etc)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Bad or missing credentials)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden (Service not permitted to access this resource)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found (Loyalty no/ Store/ Division/ EHHN)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error (Downstream system failures)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "coupon.basic",
+              "coupon.personalized",
+              "coupon.personalized:rw"
+            ]
+          },
+          {
+            "Client_Context": [
+              "coupon.basic",
+              "coupon.personalized",
+              "coupon.personalized:rw"
+            ]
+          }
+        ]
+      }
+    },
+    "/my_coupons": {
+      "post": {
+        "tags": [
+          "coupons"
+        ],
+        "summary": "Clips a coupon",
+        "description": "Allows you to clip a coupon to a loyalty card.",
+        "operationId": "ClipCoupon",
+        "parameters": [
+          {
+            "name": "X-Correlation-ID",
+            "in": "header",
+            "description": "A unique value to use when identifying this particular request<br><pre>X-Correlation-ID: f3f45cb84b107da9a9803e35b0c811ec</pre>",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Merchant",
+            "in": "header",
+            "description": "The merchant to assign when clipping this coupon<br><pre>Merchant: KROGER</pre>",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/coupons.clipCouponRequestModel"
+        },
+        "responses": {
+          "204": {
+            "description": "Successful, No Content (returns empty body)"
+          },
+          "400": {
+            "description": "Bad Request (minimum requirements not met)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Coupon not found (TBD)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (Coupon already clipped)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "coupon.personalized:rw"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "coupons"
+        ],
+        "summary": "Delete Coupon",
+        "description": "Allows you to delete a Coupon from a loyalty card.",
+        "operationId": "UnclipCoupon",
+        "parameters": [
+          {
+            "name": "X-Correlation-ID",
+            "in": "header",
+            "description": "A unique value to use when identifying this particular request<br><pre>X-Correlation-ID: f3f45cb84b107da9a9803e35b0c811ec</pre>",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Merchant",
+            "in": "header",
+            "description": "The merchant to use when unclipping this coupon<br><pre>Merchant: KROGER</pre>",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/coupons.clipCouponRequestModel"
+        },
+        "responses": {
+          "204": {
+            "description": "Successful, No Content (returns empty body)"
+          },
+          "400": {
+            "description": "Bad Request (Loyalty card number is missing)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized (Missing/Wrong service credentials)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden (Action not permitted on this service)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Coupon not found (Coupon not clipped, cannot be removed)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict (This coupon cannot be removed)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "User_Context": [
+              "coupon.personalized:rw"
+            ]
+          }
+        ]
+      }
+    },
+    "/courier/deliveries": {
+      "get": {
+        "tags": [
+          "deliveries"
+        ],
+        "summary": "Get deliveries",
+        "description": "Returns list of deliveries available for courier confirmation. Deliveries are descending in order by its beginDate. You can use 'filter.followingAction' request param (not required, only one value possible) to filter out deliveries you need:\n* __CONFIRM__(default) for deliveries in 'Pending confirmation' and 'Not confirmed' statuses;\n* __CONFIRM_EDITING__ for deliveries in 'Edited' and 'Edits not confirmed' statuses;\n* __CONFIRM_CANCELLATION__ for deliveries in 'Canceled by Kroger' and 'Cancellation confirmation pending' statuses;",
+        "operationId": "getDeliveriesUsingGET",
+        "parameters": [
+          {
+            "name": "filter.followingAction",
+            "in": "query",
+            "description": "An action that should be used next for deliveries",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CONFIRM",
+                "CONFIRM_CANCELLATION",
+                "CONFIRM_EDITING"
+              ],
+              "default": "CONFIRM"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request was valid and the server handled it successfully.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.deliveriesResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.deliveriesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The server cannot or will not process the request due to an apparent client error (e.g., malformed request syntax, size too large, invalid request message framing, or deceptive request routing).",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.badRequestError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request was valid, but the server is refusing action. The us authentication is required and has failed or has not yet been provided.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.unauthorizedError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource, or may need an account of some sort.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.forbiddenError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.forbiddenError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.internalServerError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.internalServerError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Client_Context": [
+              "delivery.basic",
+              "delivery.basic:rw"
+            ]
+          }
+        ]
+      }
+    },
+    "/courier/deliveries/non-delivered": {
+      "get": {
+        "tags": [
+          "deliveries"
+        ],
+        "summary": "Get non-delivered",
+        "description": "Returns a list of outstanding deliveries.An outstanding delivery is any delivery in the following states:\n* PendingConfirmation\n* Scheduled\n* NotConfirmed\n* Edited\n* EditsNotConfirmed\n* EnRouteToPickup\n* AtPickup\n* PickedUp\n* EnRouteToDropoff",
+        "operationId": "getNonDeliveredByPartnerUsingGET",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.deliveriesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The server cannot or will not process the request due to an apparent client error (e.g., malformed request syntax, size too large, invalid request message framing, or deceptive request routing).",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request was valid, but the server is refusing action. The us authentication is required and has failed or has not yet been provided.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request was valid, but the server is refusing action. The user might not have the necessary permissions for a resource, or may need an account of some sort.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.forbiddenError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/courier/deliveries/{delivery_id}": {
+      "post": {
+        "tags": [
+          "deliveries"
+        ],
+        "summary": "Update delivery",
+        "description": "Updates a particular delivery. For status transitions of delivery by courier. 'action' parameter in body is required for each update, 'payload' is optional and only for __CONFIRM__, __CONFIRM_EDITING__, __CANCEL__ and __EN_ROUTE_TO_PICK_UP__ actions.",
+        "operationId": "updateUsingPOST",
+        "parameters": [
+          {
+            "name": "delivery_id",
+            "in": "path",
+            "description": "Unique delivery id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deliveries.deliveryUpdateModel"
+              }
+            }
+          },
+          "description": "Action/Payload data structure used to update deliveries",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The request was valid and the server handled it successfully.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.deliveryResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.deliveryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The server cannot or will not process the request due to an apparent client error (e.g., malformed request syntax, size too large, invalid request message framing, or deceptive request routing).",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.badRequestError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The request was valid, but the server is refusing action. The us authentication is required and has failed or has not yet been provided.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.unauthorizedError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.unauthorizedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource could not be found but may be available in the future. Subsequent requests by the client are permissible.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.notFoundError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.notFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.",
+            "content": {
+              "application/json;charset=UTF-8": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.internalServerError"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/deliveries.internalServerError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Client_Context": [
+              "delivery.basic",
+              "delivery.basic:rw"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/v1"
+    }
+  ],
+  "components": {
+    "requestBodies": {
+      "carts.cartRequestModel": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/carts.cartRequestModel"
+            }
+          }
+        }
+      },
+      "coupons.clipCouponRequestModel": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/coupons.clipCouponRequestModel"
+            }
+          }
+        },
+        "required": true
+      }
+    },
+    "securitySchemes": {
+      "User_Context": {
+        "description": "For API authentication, Kroger uses the OAuth2 protocol ([RFC6749](https://tools.ietf.org/html/rfc6749)), supporting both the authorization code and client credentials grant types. Most applications are restricted to the authorization code grant, while service to service integrations can use the client credentials grant.<br><br>For more specific details on individual grants, see our additional [authentication documents](https://developer.kroger.com/documentation/authenticate/overview).",
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://api.kroger.com/v1/connect/oauth2/authorize",
+            "tokenUrl": "https://api.kroger.com/v1/connect/oauth2/token",
+            "scopes": {
+              "profile.name": "Grants read access to profile information, including only the ID, first name, and last name associated with the profile.",
+              "profile.basic": "Grants read access to profile information including only the email, name, address, and phone number associated with the profile.",
+              "profile.loyalty": "Grants read access to profile loyalty information including only the loyalty card number.",
+              "profile.full": "Grants read access to profile information only. Note that this scope includes profile.basic and profile.loyalty.",
+              "product.personalized": "Grants read access to personalized product information.",
+              "product.basic": "Grants read access to general product information.",
+              "cart.basic": "Grants read access to the basic version of the cart.",
+              "cart.basic:rw": "Grants read and write access to the basic version of the cart.",
+              "coupon.basic": "Grants read access to non-personalized coupons.",
+              "coupon.personalized": "Grants read access to personalized coupons.",
+              "coupon.personalized:rw": "Grants read and write access to personalized coupons.",
+              "collection.basic": "Grants read access to personalized collections.",
+              "collection.basic:rw": "Grants read and write access to personalized collections."
+            }
+          }
+        }
+      },
+      "Client_Context": {
+        "description": "For API authentication, Kroger uses the OAuth2 protocol ([RFC6749](https://tools.ietf.org/html/rfc6749)), supporting both the authorization code and client credentials grant types. Most applications are restricted to the authorization code grant, while service to service integrations can use the client credentials grant.<br><br>For more specific details on individual grants, see our additional [authentication documents](https://developer.kroger.com/documentation/authenticate/overview).",
+        "type": "oauth2",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://api.kroger.com/v1/connect/oauth2/token",
+            "scopes": {
+              "profile.exists": "Grants read access to verify if a profile exists.",
+              "product.basic": "Grants read access to general product information.",
+              "coupon.basic": "Grants read access to non-personalized coupons.",
+              "coupon.personalized": "Grants read access to personalized coupons.",
+              "coupon.personalized:rw": "Grants read and write access to personalized coupons.",
+              "delivery.basic": "Grants read access to Courier Delivery information.",
+              "delivery.basic:rw": "Grants read and write access to Courier Delivery information."
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "identity.profileModel": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/identity.profileModel_data"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "example": {
+          "data": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "addresses": [
+              {
+                "city": "Cincinnati",
+                "countryCode": "US",
+                "addressType": "home",
+                "postalCode": "45202",
+                "addressLine1": "1014 Vine St.",
+                "addressLine2": "",
+                "stateCode": "OH"
+              },
+              {
+                "city": "Cincinnati",
+                "countryCode": "US",
+                "addressType": "home",
+                "postalCode": "45202",
+                "addressLine1": "1014 Vine St.",
+                "addressLine2": "",
+                "stateCode": "OH"
+              }
+            ],
+            "loyalty": {
+              "cardNumber": "0123456789"
+            },
+            "id": "53990804-cfd1-43f3-8256-bdc9817a4fd0",
+            "email": "noreply@kroger.com",
+            "phoneNumbers": [
+              {
+                "type": "home",
+                "value": "555-555-5555"
+              },
+              {
+                "type": "home",
+                "value": "555-555-5555"
+              }
+            ]
+          },
+          "meta": "{}"
+        }
+      },
+      "identity.profilePhoneNumberModel": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "home"
+          },
+          "value": {
+            "type": "string",
+            "example": "555-555-5555"
+          }
+        },
+        "example": {
+          "type": "home",
+          "value": "555-555-5555"
+        }
+      },
+      "identity.profileAddressModel": {
+        "type": "object",
+        "properties": {
+          "addressLine1": {
+            "type": "string",
+            "example": "1014 Vine St."
+          },
+          "addressLine2": {
+            "type": "string",
+            "example": ""
+          },
+          "city": {
+            "type": "string",
+            "example": "Cincinnati"
+          },
+          "stateCode": {
+            "type": "string",
+            "example": "OH"
+          },
+          "postalCode": {
+            "type": "string",
+            "example": "45202"
+          },
+          "countryCode": {
+            "type": "string",
+            "example": "US"
+          },
+          "addressType": {
+            "type": "string",
+            "example": "home"
+          }
+        },
+        "example": {
+          "city": "Cincinnati",
+          "countryCode": "US",
+          "addressType": "home",
+          "postalCode": "45202",
+          "addressLine1": "1014 Vine St.",
+          "addressLine2": "",
+          "stateCode": "OH"
+        }
+      },
+      "identity.profileLoyaltyResponseModel": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/identity.profileLoyaltyResponseModel_data"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "example": {
+          "data": {
+            "loyalty": {
+              "cardNumber": "0123456789"
+            }
+          },
+          "meta": "{}"
+        }
+      },
+      "identity.profileLoyaltyModel": {
+        "type": "object",
+        "properties": {
+          "cardNumber": {
+            "type": "string",
+            "example": "0123456789"
+          }
+        },
+        "example": {
+          "cardNumber": "0123456789"
+        }
+      },
+      "products.productModel": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "example": "00012345678901",
+            "description": "The UPC code for the product"
+          },
+          "aisleLocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/products.productAisleLocationModel"
+            }
+          },
+          "brand": {
+            "type": "string"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "countryOrigin": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/products.productItemsModel"
+            }
+          },
+          "itemInformation": {
+            "$ref": "#/components/schemas/products.productBoxedDimensionsModel"
+          },
+          "temperature": {
+            "$ref": "#/components/schemas/products.productTemperatureModel"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/products.productImageModel"
+            }
+          },
+          "taxonomies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/products.productTaxonomyModel"
+            }
+          },
+          "upc": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "images": [
+            {
+              "default": true,
+              "sizes": [
+                {
+                  "size": "size",
+                  "id": "id",
+                  "url": "url"
+                },
+                {
+                  "size": "size",
+                  "id": "id",
+                  "url": "url"
+                }
+              ],
+              "perspective": "perspective",
+              "id": "id"
+            },
+            {
+              "default": true,
+              "sizes": [
+                {
+                  "size": "size",
+                  "id": "id",
+                  "url": "url"
+                },
+                {
+                  "size": "size",
+                  "id": "id",
+                  "url": "url"
+                }
+              ],
+              "perspective": "perspective",
+              "id": "id"
+            }
+          ],
+          "productId": "00012345678901",
+          "aisleLocations": [
+            {
+              "number": "35",
+              "sequenceNumber": "3",
+              "side": "L",
+              "bayNumber": "13",
+              "description": "Aisle 35",
+              "shelfNumber": "2",
+              "numberOfFacings": "5",
+              "shelfPositionInBay": "1"
+            },
+            {
+              "number": "35",
+              "sequenceNumber": "3",
+              "side": "L",
+              "bayNumber": "13",
+              "description": "Aisle 35",
+              "shelfNumber": "2",
+              "numberOfFacings": "5",
+              "shelfPositionInBay": "1"
+            }
+          ],
+          "taxonomies": [
+            {
+              "commodity": {
+                "code": "code",
+                "name": "name"
+              },
+              "subCommodity": {
+                "code": "code",
+                "name": "name"
+              },
+              "department": {
+                "code": "code",
+                "name": "name"
+              }
+            },
+            {
+              "commodity": {
+                "code": "code",
+                "name": "name"
+              },
+              "subCommodity": {
+                "code": "code",
+                "name": "name"
+              },
+              "department": {
+                "code": "code",
+                "name": "name"
+              }
+            }
+          ],
+          "temperature": {
+            "indicator": "indicator",
+            "heatSensitive": true
+          },
+          "description": "description",
+          "upc": "upc",
+          "itemInformation": {
+            "depth": "3.5",
+            "width": "4.75",
+            "height": "2.0"
+          },
+          "categories": [
+            "categories",
+            "categories"
+          ],
+          "countryOrigin": "countryOrigin",
+          "brand": "brand",
+          "items": [
+            "",
+            ""
+          ]
+        }
+      },
+      "products.productPayloadModel": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/products.productModel"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "example": {
+          "data": {
+            "images": [
+              {
+                "default": true,
+                "sizes": [
+                  {
+                    "size": "size",
+                    "id": "id",
+                    "url": "url"
+                  },
+                  {
+                    "size": "size",
+                    "id": "id",
+                    "url": "url"
+                  }
+                ],
+                "perspective": "perspective",
+                "id": "id"
+              },
+              {
+                "default": true,
+                "sizes": [
+                  {
+                    "size": "size",
+                    "id": "id",
+                    "url": "url"
+                  },
+                  {
+                    "size": "size",
+                    "id": "id",
+                    "url": "url"
+                  }
+                ],
+                "perspective": "perspective",
+                "id": "id"
+              }
+            ],
+            "productId": "00012345678901",
+            "aisleLocations": [
+              {
+                "number": "35",
+                "sequenceNumber": "3",
+                "side": "L",
+                "bayNumber": "13",
+                "description": "Aisle 35",
+                "shelfNumber": "2",
+                "numberOfFacings": "5",
+                "shelfPositionInBay": "1"
+              },
+              {
+                "number": "35",
+                "sequenceNumber": "3",
+                "side": "L",
+                "bayNumber": "13",
+                "description": "Aisle 35",
+                "shelfNumber": "2",
+                "numberOfFacings": "5",
+                "shelfPositionInBay": "1"
+              }
+            ],
+            "taxonomies": [
+              {
+                "commodity": {
+                  "code": "code",
+                  "name": "name"
+                },
+                "subCommodity": {
+                  "code": "code",
+                  "name": "name"
+                },
+                "department": {
+                  "code": "code",
+                  "name": "name"
+                }
+              },
+              {
+                "commodity": {
+                  "code": "code",
+                  "name": "name"
+                },
+                "subCommodity": {
+                  "code": "code",
+                  "name": "name"
+                },
+                "department": {
+                  "code": "code",
+                  "name": "name"
+                }
+              }
+            ],
+            "temperature": {
+              "indicator": "indicator",
+              "heatSensitive": true
+            },
+            "description": "description",
+            "upc": "upc",
+            "itemInformation": {
+              "depth": "3.5",
+              "width": "4.75",
+              "height": "2.0"
+            },
+            "categories": [
+              "categories",
+              "categories"
+            ],
+            "countryOrigin": "countryOrigin",
+            "brand": "brand",
+            "items": [
+              "",
+              ""
+            ]
+          },
+          "meta": "{}"
+        }
+      },
+      "products.productsPayloadModel": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/products.productModel"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "example": {
+          "data": [
+            {
+              "images": [
+                {
+                  "default": true,
+                  "sizes": [
+                    {
+                      "size": "size",
+                      "id": "id",
+                      "url": "url"
+                    },
+                    {
+                      "size": "size",
+                      "id": "id",
+                      "url": "url"
+                    }
+                  ],
+                  "perspective": "perspective",
+                  "id": "id"
+                },
+                {
+                  "default": true,
+                  "sizes": [
+                    {
+                      "size": "size",
+                      "id": "id",
+                      "url": "url"
+                    },
+                    {
+                      "size": "size",
+                      "id": "id",
+                      "url": "url"
+                    }
+                  ],
+                  "perspective": "perspective",
+                  "id": "id"
+                }
+              ],
+              "productId": "00012345678901",
+              "aisleLocations": [
+                {
+                  "number": "35",
+                  "sequenceNumber": "3",
+                  "side": "L",
+                  "bayNumber": "13",
+                  "description": "Aisle 35",
+                  "shelfNumber": "2",
+                  "numberOfFacings": "5",
+                  "shelfPositionInBay": "1"
+                },
+                {
+                  "number": "35",
+                  "sequenceNumber": "3",
+                  "side": "L",
+                  "bayNumber": "13",
+                  "description": "Aisle 35",
+                  "shelfNumber": "2",
+                  "numberOfFacings": "5",
+                  "shelfPositionInBay": "1"
+                }
+              ],
+              "taxonomies": [
+                {
+                  "commodity": {
+                    "code": "code",
+                    "name": "name"
+                  },
+                  "subCommodity": {
+                    "code": "code",
+                    "name": "name"
+                  },
+                  "department": {
+                    "code": "code",
+                    "name": "name"
+                  }
+                },
+                {
+                  "commodity": {
+                    "code": "code",
+                    "name": "name"
+                  },
+                  "subCommodity": {
+                    "code": "code",
+                    "name": "name"
+                  },
+                  "department": {
+                    "code": "code",
+                    "name": "name"
+                  }
+                }
+              ],
+              "temperature": {
+                "indicator": "indicator",
+                "heatSensitive": true
+              },
+              "description": "description",
+              "upc": "upc",
+              "itemInformation": {
+                "depth": "3.5",
+                "width": "4.75",
+                "height": "2.0"
+              },
+              "categories": [
+                "categories",
+                "categories"
+              ],
+              "countryOrigin": "countryOrigin",
+              "brand": "brand",
+              "items": [
+                "",
+                ""
+              ]
+            },
+            {
+              "images": [
+                {
+                  "default": true,
+                  "sizes": [
+                    {
+                      "size": "size",
+                      "id": "id",
+                      "url": "url"
+                    },
+                    {
+                      "size": "size",
+                      "id": "id",
+                      "url": "url"
+                    }
+                  ],
+                  "perspective": "perspective",
+                  "id": "id"
+                },
+                {
+                  "default": true,
+                  "sizes": [
+                    {
+                      "size": "size",
+                      "id": "id",
+                      "url": "url"
+                    },
+                    {
+                      "size": "size",
+                      "id": "id",
+                      "url": "url"
+                    }
+                  ],
+                  "perspective": "perspective",
+                  "id": "id"
+                }
+              ],
+              "productId": "00012345678901",
+              "aisleLocations": [
+                {
+                  "number": "35",
+                  "sequenceNumber": "3",
+                  "side": "L",
+                  "bayNumber": "13",
+                  "description": "Aisle 35",
+                  "shelfNumber": "2",
+                  "numberOfFacings": "5",
+                  "shelfPositionInBay": "1"
+                },
+                {
+                  "number": "35",
+                  "sequenceNumber": "3",
+                  "side": "L",
+                  "bayNumber": "13",
+                  "description": "Aisle 35",
+                  "shelfNumber": "2",
+                  "numberOfFacings": "5",
+                  "shelfPositionInBay": "1"
+                }
+              ],
+              "taxonomies": [
+                {
+                  "commodity": {
+                    "code": "code",
+                    "name": "name"
+                  },
+                  "subCommodity": {
+                    "code": "code",
+                    "name": "name"
+                  },
+                  "department": {
+                    "code": "code",
+                    "name": "name"
+                  }
+                },
+                {
+                  "commodity": {
+                    "code": "code",
+                    "name": "name"
+                  },
+                  "subCommodity": {
+                    "code": "code",
+                    "name": "name"
+                  },
+                  "department": {
+                    "code": "code",
+                    "name": "name"
+                  }
+                }
+              ],
+              "temperature": {
+                "indicator": "indicator",
+                "heatSensitive": true
+              },
+              "description": "description",
+              "upc": "upc",
+              "itemInformation": {
+                "depth": "3.5",
+                "width": "4.75",
+                "height": "2.0"
+              },
+              "categories": [
+                "categories",
+                "categories"
+              ],
+              "countryOrigin": "countryOrigin",
+              "brand": "brand",
+              "items": [
+                "",
+                ""
+              ]
+            }
+          ],
+          "meta": "{}"
+        }
+      },
+      "products.productAisleLocationModel": {
+        "type": "object",
+        "properties": {
+          "bayNumber": {
+            "type": "string",
+            "example": "13",
+            "description": "The bay number in the aisle"
+          },
+          "description": {
+            "type": "string",
+            "example": "Aisle 35",
+            "description": "The location in the store"
+          },
+          "number": {
+            "type": "string",
+            "example": "35",
+            "description": "The aisle number in the store"
+          },
+          "numberOfFacings": {
+            "type": "string",
+            "example": "5",
+            "description": "The number of facings"
+          },
+          "sequenceNumber": {
+            "type": "string",
+            "example": "3",
+            "description": "The sequence of the aisle in the store"
+          },
+          "side": {
+            "type": "string",
+            "example": "L",
+            "description": "The side of the aisle where the product is located"
+          },
+          "shelfNumber": {
+            "type": "string",
+            "example": "2",
+            "description": "The shelf number in the aisle"
+          },
+          "shelfPositionInBay": {
+            "type": "string",
+            "example": "1",
+            "description": "The position of the shelf in the bay"
+          }
+        },
+        "example": {
+          "number": "35",
+          "sequenceNumber": "3",
+          "side": "L",
+          "bayNumber": "13",
+          "description": "Aisle 35",
+          "shelfNumber": "2",
+          "numberOfFacings": "5",
+          "shelfPositionInBay": "1"
+        }
+      },
+      "products.productBoxedDimensionsModel": {
+        "type": "object",
+        "properties": {
+          "depth": {
+            "type": "string",
+            "example": "3.5",
+            "description": "The depth of the product"
+          },
+          "height": {
+            "type": "string",
+            "example": "2.0",
+            "description": "The height of the product"
+          },
+          "width": {
+            "type": "string",
+            "example": "4.75",
+            "description": "The length of the product"
+          }
+        },
+        "example": {
+          "depth": "3.5",
+          "width": "4.75",
+          "height": "2.0"
+        }
+      },
+      "products.productItemModel": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "favorite": {
+            "type": "boolean"
+          },
+          "fulfillment": {
+            "$ref": "#/components/schemas/products.productItemFulfillmentModel"
+          },
+          "price": {
+            "$ref": "#/components/schemas/products.productItemPriceModel"
+          },
+          "size": {
+            "type": "string"
+          }
+        }
+      },
+      "products.productItemFulfillmentModel": {
+        "type": "object",
+        "properties": {
+          "curbside": {
+            "type": "boolean"
+          },
+          "delivery": {
+            "type": "boolean"
+          }
+        }
+      },
+      "products.productItemPriceModel": {
+        "type": "object",
+        "properties": {
+          "regular": {
+            "type": "number"
+          },
+          "promo": {
+            "type": "number"
+          }
+        }
+      },
+      "products.productItemsModel": {
+        "type": "array",
+        "items": {}
+      },
+      "products.productImageModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "perspective": {
+            "type": "string"
+          },
+          "default": {
+            "type": "boolean"
+          },
+          "sizes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/products.productImageSizeModel"
+            }
+          }
+        },
+        "example": {
+          "default": true,
+          "sizes": [
+            {
+              "size": "size",
+              "id": "id",
+              "url": "url"
+            },
+            {
+              "size": "size",
+              "id": "id",
+              "url": "url"
+            }
+          ],
+          "perspective": "perspective",
+          "id": "id"
+        }
+      },
+      "products.productImageSizeModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "size": "size",
+          "id": "id",
+          "url": "url"
+        }
+      },
+      "products.productTaxonomyModel": {
+        "type": "object",
+        "properties": {
+          "department": {
+            "$ref": "#/components/schemas/products.productTaxonomyDepartmentModel"
+          },
+          "commodity": {
+            "$ref": "#/components/schemas/products.productTaxonomyCommodityModel"
+          },
+          "subCommodity": {
+            "$ref": "#/components/schemas/products.productTaxonomySubCommodityModel"
+          }
+        },
+        "example": {
+          "commodity": {
+            "code": "code",
+            "name": "name"
+          },
+          "subCommodity": {
+            "code": "code",
+            "name": "name"
+          },
+          "department": {
+            "code": "code",
+            "name": "name"
+          }
+        }
+      },
+      "products.productTaxonomyDepartmentModel": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "code": "code",
+          "name": "name"
+        }
+      },
+      "products.productTaxonomyCommodityModel": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "code": "code",
+          "name": "name"
+        }
+      },
+      "products.productTaxonomySubCommodityModel": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "code": "code",
+          "name": "name"
+        }
+      },
+      "products.productTemperatureModel": {
+        "type": "object",
+        "properties": {
+          "indicator": {
+            "type": "string"
+          },
+          "heatSensitive": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "indicator": "indicator",
+          "heatSensitive": true
+        }
+      },
+      "carts.cartModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdDate": {
+            "type": "string",
+            "example": "2018-01-18T16:05:05.206Z"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/carts.cartItemResponseModel"
+            }
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "createdDate": "2018-01-18T16:05:05.206Z",
+          "name": "name",
+          "id": "id",
+          "items": [
+            {
+              "createdDate": "2018-01-18T16:05:05.206Z",
+              "quantity": 0,
+              "allowSubstitutes": true,
+              "specialInstructions": "specialInstructions",
+              "upc": "upc",
+              "description": "description"
+            },
+            {
+              "createdDate": "2018-01-18T16:05:05.206Z",
+              "quantity": 0,
+              "allowSubstitutes": true,
+              "specialInstructions": "specialInstructions",
+              "upc": "upc",
+              "description": "description"
+            }
+          ]
+        }
+      },
+      "carts.cartPayloadModel": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/carts.cartModel"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "example": {
+          "data": {
+            "createdDate": "2018-01-18T16:05:05.206Z",
+            "name": "name",
+            "id": "id",
+            "items": [
+              {
+                "createdDate": "2018-01-18T16:05:05.206Z",
+                "quantity": 0,
+                "allowSubstitutes": true,
+                "specialInstructions": "specialInstructions",
+                "upc": "upc",
+                "description": "description"
+              },
+              {
+                "createdDate": "2018-01-18T16:05:05.206Z",
+                "quantity": 0,
+                "allowSubstitutes": true,
+                "specialInstructions": "specialInstructions",
+                "upc": "upc",
+                "description": "description"
+              }
+            ]
+          },
+          "meta": "{}"
+        }
+      },
+      "carts.cartsPayloadModel": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/carts.cartModel"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "example": {
+          "data": [
+            {
+              "createdDate": "2018-01-18T16:05:05.206Z",
+              "name": "name",
+              "id": "id",
+              "items": [
+                {
+                  "createdDate": "2018-01-18T16:05:05.206Z",
+                  "quantity": 0,
+                  "allowSubstitutes": true,
+                  "specialInstructions": "specialInstructions",
+                  "upc": "upc",
+                  "description": "description"
+                },
+                {
+                  "createdDate": "2018-01-18T16:05:05.206Z",
+                  "quantity": 0,
+                  "allowSubstitutes": true,
+                  "specialInstructions": "specialInstructions",
+                  "upc": "upc",
+                  "description": "description"
+                }
+              ]
+            },
+            {
+              "createdDate": "2018-01-18T16:05:05.206Z",
+              "name": "name",
+              "id": "id",
+              "items": [
+                {
+                  "createdDate": "2018-01-18T16:05:05.206Z",
+                  "quantity": 0,
+                  "allowSubstitutes": true,
+                  "specialInstructions": "specialInstructions",
+                  "upc": "upc",
+                  "description": "description"
+                },
+                {
+                  "createdDate": "2018-01-18T16:05:05.206Z",
+                  "quantity": 0,
+                  "allowSubstitutes": true,
+                  "specialInstructions": "specialInstructions",
+                  "upc": "upc",
+                  "description": "description"
+                }
+              ]
+            }
+          ],
+          "meta": "{}"
+        }
+      },
+      "carts.cartItemRequestModel": {
+        "type": "object",
+        "required": [
+          "quantity",
+          "upc"
+        ],
+        "properties": {
+          "allowSubstitutes": {
+            "type": "boolean"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "specialInstructions": {
+            "type": "string"
+          },
+          "upc": {
+            "type": "string"
+          }
+        }
+      },
+      "carts.cartItemResponseModel": {
+        "type": "object",
+        "properties": {
+          "allowSubstitutes": {
+            "type": "boolean"
+          },
+          "createdDate": {
+            "type": "string",
+            "example": "2018-01-18T16:05:05.206Z"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "specialInstructions": {
+            "type": "string"
+          },
+          "upc": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "createdDate": "2018-01-18T16:05:05.206Z",
+          "quantity": 0,
+          "allowSubstitutes": true,
+          "specialInstructions": "specialInstructions",
+          "upc": "upc",
+          "description": "description"
+        }
+      },
+      "carts.cartRequestModel": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/carts.cartItemRequestModel"
+            }
+          }
+        }
+      },
+      "carts.cartItemPostRequestModel": {
+        "type": "object",
+        "required": [
+          "quantity",
+          "upc"
+        ],
+        "properties": {
+          "upc": {
+            "type": "string"
+          },
+          "allowSubstitutes": {
+            "type": "boolean"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "specialInstructions": {
+            "type": "string"
+          }
+        }
+      },
+      "carts.cartItemPutRequestModel": {
+        "type": "object",
+        "required": [
+          "quantity"
+        ],
+        "properties": {
+          "allowSubstitutes": {
+            "type": "boolean"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "specialInstructions": {
+            "type": "string"
+          }
+        }
+      },
+      "locations.address": {
+        "type": "object",
+        "properties": {
+          "addressLine1": {
+            "type": "string",
+            "example": "2900 W. St. Rt. 22 & 3"
+          },
+          "addressLine2": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string",
+            "example": "Maineville"
+          },
+          "county": {
+            "type": "string",
+            "example": "WARREN COUNTY"
+          },
+          "state": {
+            "type": "string",
+            "example": "OH"
+          },
+          "zipCode": {
+            "type": "string",
+            "example": "45039"
+          }
+        },
+        "example": {
+          "zipCode": "45039",
+          "city": "Maineville",
+          "county": "WARREN COUNTY",
+          "addressLine1": "2900 W. St. Rt. 22 & 3",
+          "addressLine2": "addressLine2",
+          "state": "OH"
+        }
+      },
+      "locations.chain": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "KROGER",
+            "description": "the unique name for a chain"
+          },
+          "divisionNumbers": {
+            "type": "array",
+            "example": [
+              "01",
+              "02"
+            ],
+            "description": "a list of all management division numbers within this brand",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "name": "KROGER",
+          "divisionNumbers": [
+            "01",
+            "02"
+          ]
+        }
+      },
+      "locations.chainResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/locations.chain"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "example": {
+          "data": {
+            "name": "KROGER",
+            "divisionNumbers": [
+              "01",
+              "02"
+            ]
+          },
+          "meta": "{}"
+        }
+      },
+      "locations.chainsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/locations.chain"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaModel"
+          }
+        },
+        "example": {
+          "data": [
+            {
+              "name": "KROGER",
+              "divisionNumbers": [
+                "01",
+                "02"
+              ]
+            },
+            {
+              "name": "KROGER",
+              "divisionNumbers": [
+                "01",
+                "02"
+              ]
+            }
+          ],
+          "meta": {
+            "pagination": {
+              "total": 1.4658129805029452,
+              "start": 0.8008281904610115,
+              "limit": 6.027456183070403
+            },
+            "warnings": [
+              "warnings",
+              "warnings"
+            ]
+          }
+        }
+      },
+      "locations.dailyHours": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "string",
+            "example": "05:00",
+            "description": "the opening time for a location or department"
+          },
+          "close": {
+            "type": "string",
+            "example": "23:00",
+            "description": "the closing time for a location or department"
+          },
+          "open24": {
+            "type": "boolean",
+            "example": false,
+            "description": "indicates if this location or department is open 24 hours on this day"
+          }
+        },
+        "example": {
+          "close": "23:00",
+          "open": "05:00",
+          "open24": false
+        }
+      },
+      "locations.departmentAtLocation": {
+        "type": "object",
+        "properties": {
+          "departmentId": {
+            "type": "string",
+            "example": "01",
+            "description": "the 2-digit department code"
+          },
+          "name": {
+            "type": "string",
+            "example": "Drug & General Merchandise",
+            "description": "the name of the department"
+          },
+          "phone": {
+            "type": "string",
+            "example": "5551234567",
+            "description": "the phone number, if any, for the department"
+          },
+          "hours": {
+            "$ref": "#/components/schemas/locations.departmentHours"
+          }
+        },
+        "example": {
+          "hours": {
+            "sunday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "saturday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "tuesday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "Open24": false,
+            "wednesday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "thursday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "friday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "monday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            }
+          },
+          "phone": "5551234567",
+          "departmentId": "01",
+          "name": "Drug & General Merchandise"
+        }
+      },
+      "locations.department": {
+        "type": "object",
+        "properties": {
+          "departmentId": {
+            "type": "string",
+            "example": "01",
+            "description": "the 2-digit department code"
+          },
+          "name": {
+            "type": "string",
+            "example": "Drug & General Merchandise",
+            "description": "the name of the department"
+          }
+        },
+        "example": {
+          "departmentId": "01",
+          "name": "Drug & General Merchandise"
+        }
+      },
+      "locations.departmentResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/locations.department"
+          },
+          "meta": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "example": {
+          "data": {
+            "departmentId": "01",
+            "name": "Drug & General Merchandise"
+          },
+          "meta": "{}"
+        }
+      },
+      "locations.departmentsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/locations.department"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaModel"
+          }
+        },
+        "example": {
+          "data": [
+            {
+              "departmentId": "01",
+              "name": "Drug & General Merchandise"
+            },
+            {
+              "departmentId": "01",
+              "name": "Drug & General Merchandise"
+            }
+          ],
+          "meta": {
+            "pagination": {
+              "total": 1.4658129805029452,
+              "start": 0.8008281904610115,
+              "limit": 6.027456183070403
+            },
+            "warnings": [
+              "warnings",
+              "warnings"
+            ]
+          }
+        }
+      },
+      "locations.geoLocation": {
+        "type": "object",
+        "properties": {
+          "latLng": {
+            "type": "string",
+            "example": "39.3110881,-84.2751167"
+          },
+          "latitude": {
+            "type": "number",
+            "example": 39.3110881
+          },
+          "longitude": {
+            "type": "number",
+            "example": -84.2751167
+          }
+        },
+        "example": {
+          "latitude": 39.3110881,
+          "latLng": "39.3110881,-84.2751167",
+          "longitude": -84.2751167
+        }
+      },
+      "locations.locationHours": {
+        "type": "object",
+        "properties": {
+          "Open24": {
+            "type": "boolean"
+          },
+          "gmtOffset": {
+            "type": "string",
+            "example": "(UTC-05:00) Eastern Time (US Canada)",
+            "description": "utc timezone offset from gmt"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "America/New_York",
+            "description": "timezone for the location"
+          },
+          "friday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "monday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "saturday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "sunday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "thursday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "tuesday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "wednesday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          }
+        },
+        "example": {
+          "sunday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "saturday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "tuesday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "Open24": true,
+          "gmtOffset": "(UTC-05:00) Eastern Time (US Canada)",
+          "timezone": "America/New_York",
+          "friday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "thursday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "wednesday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "monday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          }
+        }
+      },
+      "locations.departmentHours": {
+        "type": "object",
+        "properties": {
+          "Open24": {
+            "type": "boolean",
+            "example": false
+          },
+          "monday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "tuesday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "wednesday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "thursday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "friday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "saturday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          },
+          "sunday": {
+            "$ref": "#/components/schemas/locations.dailyHours"
+          }
+        },
+        "example": {
+          "sunday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "saturday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "tuesday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "Open24": false,
+          "wednesday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "thursday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "friday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          },
+          "monday": {
+            "close": "23:00",
+            "open": "05:00",
+            "open24": false
+          }
+        }
+      },
+      "locations.location": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "$ref": "#/components/schemas/locations.address"
+          },
+          "chain": {
+            "type": "string",
+            "example": "KROGER",
+            "description": "the subsidiary, like KROGER, FRED, etc"
+          },
+          "phone": {
+            "type": "string",
+            "example": "5551234567",
+            "description": "the phone number for the location"
+          },
+          "departments": {
+            "type": "array",
+            "description": "the departments available at this location",
+            "items": {
+              "$ref": "#/components/schemas/locations.departmentAtLocation"
+            }
+          },
+          "geolocation": {
+            "$ref": "#/components/schemas/locations.geoLocation"
+          },
+          "hours": {
+            "$ref": "#/components/schemas/locations.locationHours"
+          },
+          "locationId": {
+            "type": "string",
+            "example": "01400376",
+            "description": "the 3-digit management division followed by the 5-digit store number"
+          },
+          "name": {
+            "type": "string",
+            "example": "Kroger Landen",
+            "description": "the name of this location, which is the facility name (like 'Kroger') followed by the vanity name (like 'Landen')"
+          }
+        },
+        "example": {
+          "chain": "KROGER",
+          "hours": {
+            "sunday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "saturday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "tuesday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "Open24": true,
+            "gmtOffset": "(UTC-05:00) Eastern Time (US Canada)",
+            "timezone": "America/New_York",
+            "friday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "thursday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "wednesday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            },
+            "monday": {
+              "close": "23:00",
+              "open": "05:00",
+              "open24": false
+            }
+          },
+          "address": {
+            "zipCode": "45039",
+            "city": "Maineville",
+            "county": "WARREN COUNTY",
+            "addressLine1": "2900 W. St. Rt. 22 & 3",
+            "addressLine2": "addressLine2",
+            "state": "OH"
+          },
+          "phone": "5551234567",
+          "locationId": "01400376",
+          "name": "Kroger Landen",
+          "departments": [
+            {
+              "hours": {
+                "sunday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "saturday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "tuesday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "Open24": false,
+                "wednesday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "thursday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "friday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "monday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                }
+              },
+              "phone": "5551234567",
+              "departmentId": "01",
+              "name": "Drug & General Merchandise"
+            },
+            {
+              "hours": {
+                "sunday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "saturday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "tuesday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "Open24": false,
+                "wednesday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "thursday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "friday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "monday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                }
+              },
+              "phone": "5551234567",
+              "departmentId": "01",
+              "name": "Drug & General Merchandise"
+            }
+          ],
+          "geolocation": {
+            "latitude": 39.3110881,
+            "latLng": "39.3110881,-84.2751167",
+            "longitude": -84.2751167
+          }
+        }
+      },
+      "locations.locationCount": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "example": [],
+            "items": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaModel"
+          }
+        }
+      },
+      "locations.locationSearchResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/locations.location"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaModel"
+          }
+        },
+        "example": {
+          "data": [
+            {
+              "chain": "KROGER",
+              "hours": {
+                "sunday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "saturday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "tuesday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "Open24": true,
+                "gmtOffset": "(UTC-05:00) Eastern Time (US Canada)",
+                "timezone": "America/New_York",
+                "friday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "thursday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "wednesday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "monday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                }
+              },
+              "address": {
+                "zipCode": "45039",
+                "city": "Maineville",
+                "county": "WARREN COUNTY",
+                "addressLine1": "2900 W. St. Rt. 22 & 3",
+                "addressLine2": "addressLine2",
+                "state": "OH"
+              },
+              "phone": "5551234567",
+              "locationId": "01400376",
+              "name": "Kroger Landen",
+              "departments": [
+                {
+                  "hours": {
+                    "sunday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "saturday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "tuesday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "Open24": false,
+                    "wednesday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "thursday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "friday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "monday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    }
+                  },
+                  "phone": "5551234567",
+                  "departmentId": "01",
+                  "name": "Drug & General Merchandise"
+                },
+                {
+                  "hours": {
+                    "sunday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "saturday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "tuesday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "Open24": false,
+                    "wednesday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "thursday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "friday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "monday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    }
+                  },
+                  "phone": "5551234567",
+                  "departmentId": "01",
+                  "name": "Drug & General Merchandise"
+                }
+              ],
+              "geolocation": {
+                "latitude": 39.3110881,
+                "latLng": "39.3110881,-84.2751167",
+                "longitude": -84.2751167
+              }
+            },
+            {
+              "chain": "KROGER",
+              "hours": {
+                "sunday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "saturday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "tuesday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "Open24": true,
+                "gmtOffset": "(UTC-05:00) Eastern Time (US Canada)",
+                "timezone": "America/New_York",
+                "friday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "thursday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "wednesday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                },
+                "monday": {
+                  "close": "23:00",
+                  "open": "05:00",
+                  "open24": false
+                }
+              },
+              "address": {
+                "zipCode": "45039",
+                "city": "Maineville",
+                "county": "WARREN COUNTY",
+                "addressLine1": "2900 W. St. Rt. 22 & 3",
+                "addressLine2": "addressLine2",
+                "state": "OH"
+              },
+              "phone": "5551234567",
+              "locationId": "01400376",
+              "name": "Kroger Landen",
+              "departments": [
+                {
+                  "hours": {
+                    "sunday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "saturday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "tuesday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "Open24": false,
+                    "wednesday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "thursday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "friday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "monday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    }
+                  },
+                  "phone": "5551234567",
+                  "departmentId": "01",
+                  "name": "Drug & General Merchandise"
+                },
+                {
+                  "hours": {
+                    "sunday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "saturday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "tuesday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "Open24": false,
+                    "wednesday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "thursday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "friday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    },
+                    "monday": {
+                      "close": "23:00",
+                      "open": "05:00",
+                      "open24": false
+                    }
+                  },
+                  "phone": "5551234567",
+                  "departmentId": "01",
+                  "name": "Drug & General Merchandise"
+                }
+              ],
+              "geolocation": {
+                "latitude": 39.3110881,
+                "latLng": "39.3110881,-84.2751167",
+                "longitude": -84.2751167
+              }
+            }
+          ],
+          "meta": {
+            "pagination": {
+              "total": 1.4658129805029452,
+              "start": 0.8008281904610115,
+              "limit": 6.027456183070403
+            },
+            "warnings": [
+              "warnings",
+              "warnings"
+            ]
+          }
+        }
+      },
+      "locations.locationResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/locations.location"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaModel"
+          }
+        },
+        "example": {
+          "data": {
+            "chain": "KROGER",
+            "hours": {
+              "sunday": {
+                "close": "23:00",
+                "open": "05:00",
+                "open24": false
+              },
+              "saturday": {
+                "close": "23:00",
+                "open": "05:00",
+                "open24": false
+              },
+              "tuesday": {
+                "close": "23:00",
+                "open": "05:00",
+                "open24": false
+              },
+              "Open24": true,
+              "gmtOffset": "(UTC-05:00) Eastern Time (US Canada)",
+              "timezone": "America/New_York",
+              "friday": {
+                "close": "23:00",
+                "open": "05:00",
+                "open24": false
+              },
+              "thursday": {
+                "close": "23:00",
+                "open": "05:00",
+                "open24": false
+              },
+              "wednesday": {
+                "close": "23:00",
+                "open": "05:00",
+                "open24": false
+              },
+              "monday": {
+                "close": "23:00",
+                "open": "05:00",
+                "open24": false
+              }
+            },
+            "address": {
+              "zipCode": "45039",
+              "city": "Maineville",
+              "county": "WARREN COUNTY",
+              "addressLine1": "2900 W. St. Rt. 22 & 3",
+              "addressLine2": "addressLine2",
+              "state": "OH"
+            },
+            "phone": "5551234567",
+            "locationId": "01400376",
+            "name": "Kroger Landen",
+            "departments": [
+              {
+                "hours": {
+                  "sunday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "saturday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "tuesday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "Open24": false,
+                  "wednesday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "thursday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "friday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "monday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  }
+                },
+                "phone": "5551234567",
+                "departmentId": "01",
+                "name": "Drug & General Merchandise"
+              },
+              {
+                "hours": {
+                  "sunday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "saturday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "tuesday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "Open24": false,
+                  "wednesday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "thursday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "friday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  },
+                  "monday": {
+                    "close": "23:00",
+                    "open": "05:00",
+                    "open24": false
+                  }
+                },
+                "phone": "5551234567",
+                "departmentId": "01",
+                "name": "Drug & General Merchandise"
+              }
+            ],
+            "geolocation": {
+              "latitude": 39.3110881,
+              "latLng": "39.3110881,-84.2751167",
+              "longitude": -84.2751167
+            }
+          },
+          "meta": {
+            "pagination": {
+              "total": 1.4658129805029452,
+              "start": 0.8008281904610115,
+              "limit": 6.027456183070403
+            },
+            "warnings": [
+              "warnings",
+              "warnings"
+            ]
+          }
+        }
+      },
+      "collections.getCollectionResponse": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/collections.collectionsModel"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/MetaModel"
+          }
+        },
+        "example": {
+          "data": {
+            "collections": [
+              {
+                "createdDate": "2018-02-01T11:30:13.771Z",
+                "lastupdatedDate": "2018-02-01T11:30:13.771Z",
+                "name": "Taco Night List",
+                "id": "d056c8b3-4f82-47f9-a7c4-935f97e8259c",
+                "type": "",
+                "items": [
+                  {
+                    "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+                    "createdDate": "2018-02-01T11:30:13.771Z",
+                    "quantity": 2,
+                    "specialInstructions": "bag separate from rest of groceries",
+                    "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+                    "channel": "MOBILE",
+                    "upc": "0001111097139"
+                  },
+                  {
+                    "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+                    "createdDate": "2018-02-01T11:30:13.771Z",
+                    "quantity": 2,
+                    "specialInstructions": "bag separate from rest of groceries",
+                    "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+                    "channel": "MOBILE",
+                    "upc": "0001111097139"
+                  }
+                ],
+                "itemCount": 2
+              },
+              {
+                "createdDate": "2018-02-01T11:30:13.771Z",
+                "lastupdatedDate": "2018-02-01T11:30:13.771Z",
+                "name": "Taco Night List",
+                "id": "d056c8b3-4f82-47f9-a7c4-935f97e8259c",
+                "type": "",
+                "items": [
+                  {
+                    "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+                    "createdDate": "2018-02-01T11:30:13.771Z",
+                    "quantity": 2,
+                    "specialInstructions": "bag separate from rest of groceries",
+                    "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+                    "channel": "MOBILE",
+                    "upc": "0001111097139"
+                  },
+                  {
+                    "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+                    "createdDate": "2018-02-01T11:30:13.771Z",
+                    "quantity": 2,
+                    "specialInstructions": "bag separate from rest of groceries",
+                    "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+                    "channel": "MOBILE",
+                    "upc": "0001111097139"
+                  }
+                ],
+                "itemCount": 2
+              }
+            ]
+          },
+          "meta": {
+            "pagination": {
+              "total": 1.4658129805029452,
+              "start": 0.8008281904610115,
+              "limit": 6.027456183070403
+            },
+            "warnings": [
+              "warnings",
+              "warnings"
+            ]
+          }
+        }
+      },
+      "collections.collectionsModel": {
+        "properties": {
+          "collections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/collections.collectionModel"
+            }
+          }
+        },
+        "example": {
+          "collections": [
+            {
+              "createdDate": "2018-02-01T11:30:13.771Z",
+              "lastupdatedDate": "2018-02-01T11:30:13.771Z",
+              "name": "Taco Night List",
+              "id": "d056c8b3-4f82-47f9-a7c4-935f97e8259c",
+              "type": "",
+              "items": [
+                {
+                  "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+                  "createdDate": "2018-02-01T11:30:13.771Z",
+                  "quantity": 2,
+                  "specialInstructions": "bag separate from rest of groceries",
+                  "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+                  "channel": "MOBILE",
+                  "upc": "0001111097139"
+                },
+                {
+                  "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+                  "createdDate": "2018-02-01T11:30:13.771Z",
+                  "quantity": 2,
+                  "specialInstructions": "bag separate from rest of groceries",
+                  "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+                  "channel": "MOBILE",
+                  "upc": "0001111097139"
+                }
+              ],
+              "itemCount": 2
+            },
+            {
+              "createdDate": "2018-02-01T11:30:13.771Z",
+              "lastupdatedDate": "2018-02-01T11:30:13.771Z",
+              "name": "Taco Night List",
+              "id": "d056c8b3-4f82-47f9-a7c4-935f97e8259c",
+              "type": "",
+              "items": [
+                {
+                  "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+                  "createdDate": "2018-02-01T11:30:13.771Z",
+                  "quantity": 2,
+                  "specialInstructions": "bag separate from rest of groceries",
+                  "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+                  "channel": "MOBILE",
+                  "upc": "0001111097139"
+                },
+                {
+                  "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+                  "createdDate": "2018-02-01T11:30:13.771Z",
+                  "quantity": 2,
+                  "specialInstructions": "bag separate from rest of groceries",
+                  "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+                  "channel": "MOBILE",
+                  "upc": "0001111097139"
+                }
+              ],
+              "itemCount": 2
+            }
+          ]
+        }
+      },
+      "collections.collectionModel": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "d056c8b3-4f82-47f9-a7c4-935f97e8259c"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2018-02-01T11:30:13.771Z"
+          },
+          "lastupdatedDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2018-02-01T11:30:13.771Z"
+          },
+          "name": {
+            "type": "string",
+            "example": "Taco Night List"
+          },
+          "type": {
+            "type": "string",
+            "example": ""
+          },
+          "itemCount": {
+            "type": "integer",
+            "example": 2
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/collections.items"
+            }
+          }
+        },
+        "example": {
+          "createdDate": "2018-02-01T11:30:13.771Z",
+          "lastupdatedDate": "2018-02-01T11:30:13.771Z",
+          "name": "Taco Night List",
+          "id": "d056c8b3-4f82-47f9-a7c4-935f97e8259c",
+          "type": "",
+          "items": [
+            {
+              "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+              "createdDate": "2018-02-01T11:30:13.771Z",
+              "quantity": 2,
+              "specialInstructions": "bag separate from rest of groceries",
+              "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+              "channel": "MOBILE",
+              "upc": "0001111097139"
+            },
+            {
+              "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+              "createdDate": "2018-02-01T11:30:13.771Z",
+              "quantity": 2,
+              "specialInstructions": "bag separate from rest of groceries",
+              "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+              "channel": "MOBILE",
+              "upc": "0001111097139"
+            }
+          ],
+          "itemCount": 2
+        }
+      },
+      "collections.items": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Private Selection Angus 80% Lean 20 % Fat Ground Beef"
+          },
+          "upc": {
+            "type": "string",
+            "example": "0001111097139"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2018-02-01T11:30:13.771Z"
+          },
+          "lastUpdatedDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2018-10-15T13:40:13.771Z"
+          },
+          "channel": {
+            "type": "string",
+            "example": "MOBILE"
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 2
+          },
+          "specialInstructions": {
+            "type": "string",
+            "example": "bag separate from rest of groceries"
+          }
+        },
+        "example": {
+          "lastUpdatedDate": "2018-10-15T13:40:13.771Z",
+          "createdDate": "2018-02-01T11:30:13.771Z",
+          "quantity": 2,
+          "specialInstructions": "bag separate from rest of groceries",
+          "name": "Private Selection Angus 80% Lean 20 % Fat Ground Beef",
+          "channel": "MOBILE",
+          "upc": "0001111097139"
+        }
+      },
+      "coupons.responseModel": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/coupons.coupon"
+            }
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/MetadataModel"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "example": {
+          "metadata": {
+            "totalPages": 5,
+            "pageSize": 6,
+            "page": 0,
+            "totalCount": 1
+          },
+          "data": [
+            {
+              "longDescription": "Offer excludes Mastercard and/or Visa Variable Load Gift Cards. While supplies last",
+              "featured": false,
+              "redemptionsAllowed": "1",
+              "subCategory": "",
+              "couponId": "2115072",
+              "title": "Save $1.00",
+              "canBeAddedToCard": true,
+              "requirementQuantity": 1,
+              "imageUrl": "http://cdnws.softcoin.com/mediaCache/ecoupon_1234149.png",
+              "categories": [
+                "categories",
+                "categories"
+              ],
+              "id": "f7b1e816-ae08-4374-9f26-2a30c4565c2f",
+              "canBeRemoved": false,
+              "filterTags": [
+                "filterTags",
+                "filterTags"
+              ],
+              "value": 1,
+              "expirationDate": "2018-05-17",
+              "displayDescription": "On Easter-C Vitamins",
+              "lastUpdateDateTime": "2018-02-13T16:36:48.691Z",
+              "brandName": "Other",
+              "totalDownloads": 313300,
+              "addedToCard": false,
+              "shortDescription": "Get 4x fuel points",
+              "offerPriority": 9999,
+              "krogerCouponNumber": "800000025186",
+              "createDateTime": "2018-02-13T16:36:48.691Z",
+              "savingsAmount": 1,
+              "relevanceRank": 1,
+              "displayStartDate": "2018-05-02",
+              "relevanceScore": 30.970887,
+              "requirementsDescription": "When you buy $25, $50, Or $100 Gift Card'",
+              "totalDownloadsAllowed": -1
+            },
+            {
+              "longDescription": "Offer excludes Mastercard and/or Visa Variable Load Gift Cards. While supplies last",
+              "featured": false,
+              "redemptionsAllowed": "1",
+              "subCategory": "",
+              "couponId": "2115072",
+              "title": "Save $1.00",
+              "canBeAddedToCard": true,
+              "requirementQuantity": 1,
+              "imageUrl": "http://cdnws.softcoin.com/mediaCache/ecoupon_1234149.png",
+              "categories": [
+                "categories",
+                "categories"
+              ],
+              "id": "f7b1e816-ae08-4374-9f26-2a30c4565c2f",
+              "canBeRemoved": false,
+              "filterTags": [
+                "filterTags",
+                "filterTags"
+              ],
+              "value": 1,
+              "expirationDate": "2018-05-17",
+              "displayDescription": "On Easter-C Vitamins",
+              "lastUpdateDateTime": "2018-02-13T16:36:48.691Z",
+              "brandName": "Other",
+              "totalDownloads": 313300,
+              "addedToCard": false,
+              "shortDescription": "Get 4x fuel points",
+              "offerPriority": 9999,
+              "krogerCouponNumber": "800000025186",
+              "createDateTime": "2018-02-13T16:36:48.691Z",
+              "savingsAmount": 1,
+              "relevanceRank": 1,
+              "displayStartDate": "2018-05-02",
+              "relevanceScore": 30.970887,
+              "requirementsDescription": "When you buy $25, $50, Or $100 Gift Card'",
+              "totalDownloadsAllowed": -1
+            }
+          ],
+          "timestamp": "2000-01-23T04:56:07.000+00:00"
+        }
+      },
+      "coupons.clipCouponRequestModel": {
+        "type": "object",
+        "required": [
+          "couponId"
+        ],
+        "properties": {
+          "couponId": {
+            "type": "string",
+            "description": "The coupon identifier number which is required"
+          }
+        }
+      },
+      "coupons.coupon": {
+        "type": "object",
+        "properties": {
+          "addedToCard": {
+            "type": "boolean",
+            "example": false,
+            "description": "If the coupon is already loaded to customers loyalty card",
+            "readOnly": true
+          },
+          "brandName": {
+            "type": "string",
+            "example": "Other",
+            "description": "Brand of Coupon",
+            "readOnly": true
+          },
+          "canBeAddedToCard": {
+            "type": "boolean",
+            "example": true,
+            "description": "If the coupon can be loaded to customer's loyalty card",
+            "readOnly": true
+          },
+          "canBeRemoved": {
+            "type": "boolean",
+            "example": false,
+            "description": "If the coupon can be removed from customer's loyalty card",
+            "readOnly": true
+          },
+          "categories": {
+            "type": "array",
+            "description": "Requirements for the offer",
+            "readOnly": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "couponId": {
+            "type": "string",
+            "example": "2115072",
+            "description": "Coupon ID from external system",
+            "readOnly": true
+          },
+          "createDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2018-02-13T16:36:48.691Z",
+            "description": "**Timestamp of the object creation**<br><br>The value is set by back-end, and is immutable. This is NOT modifiable by clients. The value is in UTC.",
+            "readOnly": true
+          },
+          "displayDescription": {
+            "type": "string",
+            "example": "On Easter-C Vitamins",
+            "description": "Description of the coupon to be displayed on web/mobile",
+            "readOnly": true
+          },
+          "displayStartDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-05-02",
+            "description": "Date to start displaying Coupon",
+            "readOnly": true
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-05-17",
+            "description": "Expiration Date of Coupon",
+            "readOnly": true
+          },
+          "featured": {
+            "type": "boolean",
+            "example": false,
+            "description": "Featured Coupon",
+            "readOnly": true
+          },
+          "filterTags": {
+            "type": "array",
+            "description": "Filtering tags used for this Coupon",
+            "readOnly": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "string",
+            "example": "f7b1e816-ae08-4374-9f26-2a30c4565c2f",
+            "description": "**Unique ID of the object**<br><br>The UUID is generated by back-end and returned along with other data of created/modified entity. This is NOT modifiable by clients. This is not currently returned in the v1/coupons service, but is included for compatibility with v2/coupons.",
+            "readOnly": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "http://cdnws.softcoin.com/mediaCache/ecoupon_1234149.png",
+            "description": "Image url for the coupon",
+            "readOnly": true
+          },
+          "krogerCouponNumber": {
+            "type": "string",
+            "example": "800000025186",
+            "description": "Kroger Coupon number",
+            "readOnly": true
+          },
+          "lastUpdateDateTime": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2018-02-13T16:36:48.691Z",
+            "description": "**Timestamp of last update**<br><br>The value is set by back-end, and stored along with the data. Thevalue may be used to solve optimistic locking problem. This is NOT modifiable by clients. Timestamp is in UTC.",
+            "readOnly": true
+          },
+          "longDescription": {
+            "type": "string",
+            "example": "Offer excludes Mastercard and/or Visa Variable Load Gift Cards. While supplies last",
+            "description": "Full text description",
+            "readOnly": true
+          },
+          "offerPriority": {
+            "type": "integer",
+            "format": "int32",
+            "example": 9999,
+            "description": "Featured Coupon priority",
+            "readOnly": true
+          },
+          "redemptionsAllowed": {
+            "type": "string",
+            "example": "1",
+            "description": "Number of times the coupon can be redeemed",
+            "readOnly": true
+          },
+          "relevanceRank": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1,
+            "description": "Relevance ranking of Coupon",
+            "readOnly": true
+          },
+          "relevanceScore": {
+            "type": "number",
+            "format": "double",
+            "example": 30.970887,
+            "description": "how relevant the coupon is to customers buying habits",
+            "readOnly": true
+          },
+          "requirementQuantity": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1,
+            "description": "Quantity required for Coupon",
+            "readOnly": true
+          },
+          "requirementsDescription": {
+            "type": "string",
+            "example": "When you buy $25, $50, Or $100 Gift Card'",
+            "description": "Requirements for the offer",
+            "readOnly": true
+          },
+          "savingsAmount": {
+            "type": "number",
+            "example": 1,
+            "description": "Total savings for this Coupon",
+            "readOnly": true
+          },
+          "shortDescription": {
+            "type": "string",
+            "example": "Get 4x fuel points",
+            "description": "Short Description",
+            "readOnly": true
+          },
+          "subCategory": {
+            "type": "string",
+            "example": "",
+            "description": "SubCategory of the coupon",
+            "readOnly": true
+          },
+          "title": {
+            "type": "string",
+            "example": "Save $1.00",
+            "description": "Title of Coupon",
+            "readOnly": true
+          },
+          "totalDownloads": {
+            "type": "integer",
+            "format": "int32",
+            "example": 313300,
+            "description": "Total downloads for this Coupon",
+            "readOnly": true
+          },
+          "totalDownloadsAllowed": {
+            "type": "integer",
+            "format": "int32",
+            "example": -1,
+            "description": "Total downloads Allowed for this Coupon",
+            "readOnly": true
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32",
+            "example": 1,
+            "description": "Coupon value",
+            "readOnly": true
+          }
+        },
+        "title": "Coupon",
+        "description": "Coupon",
+        "example": {
+          "longDescription": "Offer excludes Mastercard and/or Visa Variable Load Gift Cards. While supplies last",
+          "featured": false,
+          "redemptionsAllowed": "1",
+          "subCategory": "",
+          "couponId": "2115072",
+          "title": "Save $1.00",
+          "canBeAddedToCard": true,
+          "requirementQuantity": 1,
+          "imageUrl": "http://cdnws.softcoin.com/mediaCache/ecoupon_1234149.png",
+          "categories": [
+            "categories",
+            "categories"
+          ],
+          "id": "f7b1e816-ae08-4374-9f26-2a30c4565c2f",
+          "canBeRemoved": false,
+          "filterTags": [
+            "filterTags",
+            "filterTags"
+          ],
+          "value": 1,
+          "expirationDate": "2018-05-17",
+          "displayDescription": "On Easter-C Vitamins",
+          "lastUpdateDateTime": "2018-02-13T16:36:48.691Z",
+          "brandName": "Other",
+          "totalDownloads": 313300,
+          "addedToCard": false,
+          "shortDescription": "Get 4x fuel points",
+          "offerPriority": 9999,
+          "krogerCouponNumber": "800000025186",
+          "createDateTime": "2018-02-13T16:36:48.691Z",
+          "savingsAmount": 1,
+          "relevanceRank": 1,
+          "displayStartDate": "2018-05-02",
+          "relevanceScore": 30.970887,
+          "requirementsDescription": "When you buy $25, $50, Or $100 Gift Card'",
+          "totalDownloadsAllowed": -1
+        }
+      },
+      "deliveries.deliveryModel": {
+        "type": "object",
+        "required": [
+          "createdAt",
+          "id",
+          "modifiedAt",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "createdAt": {
+            "$ref": "#/components/schemas/deliveries.datetimeModel"
+          },
+          "id": {
+            "type": "string",
+            "example": "c6627fe6-5e39-41f5-b83c-5d586f7d034b",
+            "description": "Delivery UUID"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/deliveries.deliverySpecModel"
+          },
+          "status": {
+            "$ref": "#/components/schemas/deliveries.deliveryStatusModel"
+          },
+          "modifiedAt": {
+            "$ref": "#/components/schemas/deliveries.datetimeModel"
+          }
+        },
+        "example": {
+          "createdAt": {
+            "timezone": "America/New_York",
+            "value": "2018-02-17T12:00Z"
+          },
+          "modifiedAt": {
+            "timezone": "America/New_York",
+            "value": "2018-02-17T12:00Z"
+          },
+          "id": "c6627fe6-5e39-41f5-b83c-5d586f7d034b",
+          "spec": {
+            "beginDate": {
+              "timezone": "America/New_York",
+              "value": "2018-02-17T12:00Z"
+            },
+            "orderNo": "1234567890",
+            "endDate": {
+              "timezone": "America/New_York",
+              "value": "2018-02-17T12:00Z"
+            },
+            "dropoff": {
+              "address": {
+                "country": "USA",
+                "postalCode": "12345",
+                "locality": "Cincinnati",
+                "name": "Kroger Maineville Store",
+                "region": "OH",
+                "line2": "Unit 103",
+                "line1": "123 Some St"
+              },
+              "specialInstructions": "Knock the door",
+              "contact": {
+                "firstName": "John",
+                "lastName": "Doe",
+                "emailAddress": "person@mail.com",
+                "phone": {
+                  "number": "+11231231234",
+                  "smsEnabled": true
+                }
+              },
+              "signatureRequired": true
+            },
+            "pickup": {
+              "address": {
+                "country": "USA",
+                "postalCode": "12345",
+                "locality": "Cincinnati",
+                "name": "Kroger Maineville Store",
+                "region": "OH",
+                "line2": "Unit 103",
+                "line1": "123 Some St"
+              },
+              "specialInstructions": "Call 123.",
+              "locationId": "01400025",
+              "contact": {
+                "emailAddress": "contact@company.com",
+                "phone": {
+                  "number": "+11231231234",
+                  "smsEnabled": true
+                },
+                "companyName": "ABC"
+              }
+            },
+            "orderItems": [
+              {
+                "unit": "Tote",
+                "quantity": 12
+              },
+              {
+                "unit": "Tote",
+                "quantity": 12
+              }
+            ],
+            "includesAlcohol": false
+          },
+          "status": {
+            "courierName": "delivery-partner",
+            "driver": {
+              "firstName": "John",
+              "lastName": "Doe",
+              "vehicle": {
+                "licensePlate": "ABC123",
+                "year": "2018",
+                "model": "Challenger",
+                "make": "Dodge"
+              }
+            },
+            "trackingUrl": "https://trackingurl.com",
+            "cancellationNote": "Car is broken.",
+            "pickupEta": {
+              "timezone": "America/New_York",
+              "value": "2018-02-17T12:00Z"
+            },
+            "state": "PendingConfirmation",
+            "dropoffEta": {
+              "timezone": "America/New_York",
+              "value": "2018-02-17T12:00Z"
+            }
+          }
+        }
+      },
+      "deliveries.deliverySpecModel": {
+        "type": "object",
+        "required": [
+          "beginDate",
+          "dropoff",
+          "endDate",
+          "orderItems",
+          "orderNo",
+          "pickup"
+        ],
+        "properties": {
+          "beginDate": {
+            "$ref": "#/components/schemas/deliveries.datetimeModel"
+          },
+          "dropoff": {
+            "$ref": "#/components/schemas/deliveries.dropoffModel"
+          },
+          "endDate": {
+            "$ref": "#/components/schemas/deliveries.datetimeModel"
+          },
+          "includesAlcohol": {
+            "type": "boolean",
+            "example": false,
+            "description": "The flag indicating whether delivery includes alcohol."
+          },
+          "orderNo": {
+            "type": "string",
+            "example": "1234567890"
+          },
+          "orderItems": {
+            "type": "array",
+            "description": "List of items associated with the delivery.",
+            "items": {
+              "$ref": "#/components/schemas/deliveries.orderItemModel"
+            }
+          },
+          "pickup": {
+            "$ref": "#/components/schemas/deliveries.pickupModel"
+          }
+        },
+        "description": "Delivery spec contains static delivery information.",
+        "example": {
+          "beginDate": {
+            "timezone": "America/New_York",
+            "value": "2018-02-17T12:00Z"
+          },
+          "orderNo": "1234567890",
+          "endDate": {
+            "timezone": "America/New_York",
+            "value": "2018-02-17T12:00Z"
+          },
+          "dropoff": {
+            "address": {
+              "country": "USA",
+              "postalCode": "12345",
+              "locality": "Cincinnati",
+              "name": "Kroger Maineville Store",
+              "region": "OH",
+              "line2": "Unit 103",
+              "line1": "123 Some St"
+            },
+            "specialInstructions": "Knock the door",
+            "contact": {
+              "firstName": "John",
+              "lastName": "Doe",
+              "emailAddress": "person@mail.com",
+              "phone": {
+                "number": "+11231231234",
+                "smsEnabled": true
+              }
+            },
+            "signatureRequired": true
+          },
+          "pickup": {
+            "address": {
+              "country": "USA",
+              "postalCode": "12345",
+              "locality": "Cincinnati",
+              "name": "Kroger Maineville Store",
+              "region": "OH",
+              "line2": "Unit 103",
+              "line1": "123 Some St"
+            },
+            "specialInstructions": "Call 123.",
+            "locationId": "01400025",
+            "contact": {
+              "emailAddress": "contact@company.com",
+              "phone": {
+                "number": "+11231231234",
+                "smsEnabled": true
+              },
+              "companyName": "ABC"
+            }
+          },
+          "orderItems": [
+            {
+              "unit": "Tote",
+              "quantity": 12
+            },
+            {
+              "unit": "Tote",
+              "quantity": 12
+            }
+          ],
+          "includesAlcohol": false
+        }
+      },
+      "deliveries.deliveryStatusModel": {
+        "type": "object",
+        "properties": {
+          "cancellationNote": {
+            "type": "string",
+            "example": "Car is broken.",
+            "description": "Cancellation reason if delivery was cancelled by a partner"
+          },
+          "courierName": {
+            "type": "string",
+            "example": "delivery-partner",
+            "description": "Delivery partner username"
+          },
+          "state": {
+            "type": "string",
+            "example": "PendingConfirmation",
+            "description": "Current delivery status",
+            "enum": [
+              "Initial",
+              "PendingConfirmation",
+              "Scheduled",
+              "NotConfirmed",
+              "Edited",
+              "EditsNotConfirmed",
+              "EnRouteToPickup",
+              "AtPickup",
+              "PickedUp",
+              "EnRouteToDropoff",
+              "Delivered",
+              "Undeliverable",
+              "DeletedByKroger",
+              "CanceledByKroger",
+              "CancellationConfirmationPending",
+              "CancellationConfirmed",
+              "CanceledByPartner",
+              "NoCourierAvailable",
+              "Illegal"
+            ]
+          },
+          "driver": {
+            "$ref": "#/components/schemas/deliveries.deliveryDriverInformationModel"
+          },
+          "dropoffEta": {
+            "$ref": "#/components/schemas/deliveries.datetimeModel"
+          },
+          "pickupEta": {
+            "$ref": "#/components/schemas/deliveries.datetimeModel"
+          },
+          "trackingUrl": {
+            "type": "string",
+            "example": "https://trackingurl.com",
+            "description": "Delivery tracking URL"
+          }
+        },
+        "description": "Delivery status contains dynamic delivery information.",
+        "example": {
+          "courierName": "delivery-partner",
+          "driver": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "vehicle": {
+              "licensePlate": "ABC123",
+              "year": "2018",
+              "model": "Challenger",
+              "make": "Dodge"
+            }
+          },
+          "trackingUrl": "https://trackingurl.com",
+          "cancellationNote": "Car is broken.",
+          "pickupEta": {
+            "timezone": "America/New_York",
+            "value": "2018-02-17T12:00Z"
+          },
+          "state": "PendingConfirmation",
+          "dropoffEta": {
+            "timezone": "America/New_York",
+            "value": "2018-02-17T12:00Z"
+          }
+        }
+      },
+      "deliveries.deliveryUpdateModel": {
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "Actions to perform on delivery. Based on chosen action, the client needs to provide different payload. For more info, see the payload model.\nPossible values:\n* *CONFIRM* - Confirms that the delivery partner starts working on a delivery. Use of CONFIRM action requires __pickupEta__, __dropoffEta__ and __trackingUrl__ fields to be provided.\n* *CONFIRM_EDITING* - Confirms that the delivery partner accepts latest updates happened to the previously confirmed delivery. It can happen when the customer changes delivery notes. Use of CONFIRM action requires __pickupEta__, __dropoffEta__ and __trackingUrl__ fields to be provided.\n* *DECLINE* - Declines an assigned delivery. It can happen when the delivery partner has a delivery available to work on, but there are no drivers to do the job.\n* *EN_ROUTE_TO_PICK_UP* - Indicates that the delivery driver is on the way to pick up the shipment. Use of EN_ROUTE_TO_PICK_UP action requires __driver__ field to be provided.\n* *AT_PICKUP* - Indicates that the delivery driver is at pick up location.\n* *EN_ROUTE_TO_DROPOFF* - Indicates that the delivery driver is on the way to drop off the shipment.\n* *DELIVERED* - Indicates that the delivery driver has completed the delivery successfully.\n* *UNDELIVERABLE* - Indicates that the delivery driver has completed the delivery unsuccessfully.\n* *CANCEL* - Cancels a previously confirmed delivery. For example, the delivery driver confirmed a delivery but then got stuck in traffic and was not able to complete the delivery in time.\n* *CONFIRM_CANCELLATION* - Accepts a delivery cancellation initiated by the customer.",
+            "enum": [
+              "CONFIRM",
+              "CONFIRM_EDITING",
+              "DECLINE",
+              "EN_ROUTE_TO_PICK_UP",
+              "AT_PICKUP",
+              "PICK_UP",
+              "EN_ROUTE_TO_DROPOFF",
+              "DELIVERED",
+              "UNDELIVERABLE",
+              "CANCEL",
+              "CONFIRM_CANCELLATION"
+            ]
+          },
+          "payload": {
+            "$ref": "#/components/schemas/deliveries.deliveryUpdatePayloadModel"
+          }
+        }
+      },
+      "deliveries.deliveryUpdatePayloadModel": {
+        "type": "object",
+        "properties": {
+          "cancellationNote": {
+            "type": "string",
+            "example": "Car is broken.",
+            "description": "The reason why the confirmed delivery is being canceled."
+          },
+          "driver": {
+            "$ref": "#/components/schemas/deliveries.deliveryDriverInformationModel"
+          },
+          "dropoffEta": {
+            "$ref": "#/components/schemas/deliveries.datetimeModel"
+          },
+          "pickupEta": {
+            "$ref": "#/components/schemas/deliveries.datetimeModel"
+          },
+          "trackingUrl": {
+            "type": "string",
+            "example": "https://trackingurl.com",
+            "description": "The URL that must be used to track the delivery in 'real' time."
+          }
+        }
+      },
+      "deliveries.deliveryDriverInformationModel": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "example": "John",
+            "description": "Driver first name"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Doe",
+            "description": "Driver last name"
+          },
+          "vehicle": {
+            "$ref": "#/components/schemas/deliveries.deliveryDriverInformationModel_vehicle"
+          }
+        },
+        "description": "Information about driver and his vehicle.",
+        "example": {
+          "firstName": "John",
+          "lastName": "Doe",
+          "vehicle": {
+            "licensePlate": "ABC123",
+            "year": "2018",
+            "model": "Challenger",
+            "make": "Dodge"
+          }
+        }
+      },
+      "deliveries.datetimeModel": {
+        "type": "object",
+        "required": [
+          "timezone",
+          "value"
+        ],
+        "properties": {
+          "timezone": {
+            "type": "string",
+            "example": "America/New_York",
+            "description": "Datetime timezone in IANA format"
+          },
+          "value": {
+            "type": "string",
+            "example": "2018-02-17T12:00Z",
+            "description": "Datetime value in ISO 8601 format"
+          }
+        },
+        "example": {
+          "timezone": "America/New_York",
+          "value": "2018-02-17T12:00Z"
+        }
+      },
+      "deliveries.addressModel": {
+        "type": "object",
+        "required": [
+          "line1",
+          "postalCode"
+        ],
+        "properties": {
+          "line1": {
+            "type": "string",
+            "example": "123 Some St",
+            "description": "First line of the address"
+          },
+          "line2": {
+            "type": "string",
+            "example": "Unit 103",
+            "description": "Second line address line, if any"
+          },
+          "country": {
+            "type": "string",
+            "example": "USA",
+            "description": "3 letter country code accroding to https://www.iso.org/obp/ui#search/code/"
+          },
+          "locality": {
+            "type": "string",
+            "example": "Cincinnati",
+            "description": "The city name"
+          },
+          "name": {
+            "type": "string",
+            "example": "Kroger Maineville Store",
+            "description": "The name of the recipient or store"
+          },
+          "postalCode": {
+            "type": "string",
+            "example": "12345",
+            "description": "The postal code in abbreviated or extended format"
+          },
+          "region": {
+            "type": "string",
+            "example": "OH",
+            "description": "State, province, or other regional name; use abbreviation"
+          }
+        },
+        "example": {
+          "country": "USA",
+          "postalCode": "12345",
+          "locality": "Cincinnati",
+          "name": "Kroger Maineville Store",
+          "region": "OH",
+          "line2": "Unit 103",
+          "line1": "123 Some St"
+        }
+      },
+      "deliveries.dropoffModel": {
+        "type": "object",
+        "required": [
+          "address",
+          "contact"
+        ],
+        "properties": {
+          "contact": {
+            "$ref": "#/components/schemas/deliveries.personContactModel"
+          },
+          "address": {
+            "$ref": "#/components/schemas/deliveries.addressModel"
+          },
+          "signatureRequired": {
+            "type": "boolean",
+            "example": true,
+            "description": "Is signature required"
+          },
+          "specialInstructions": {
+            "type": "string",
+            "example": "Knock the door",
+            "description": "Special delivery drop-off instructions"
+          }
+        },
+        "description": "Delivery drop off information.",
+        "example": {
+          "address": {
+            "country": "USA",
+            "postalCode": "12345",
+            "locality": "Cincinnati",
+            "name": "Kroger Maineville Store",
+            "region": "OH",
+            "line2": "Unit 103",
+            "line1": "123 Some St"
+          },
+          "specialInstructions": "Knock the door",
+          "contact": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "emailAddress": "person@mail.com",
+            "phone": {
+              "number": "+11231231234",
+              "smsEnabled": true
+            }
+          },
+          "signatureRequired": true
+        }
+      },
+      "deliveries.pickupModel": {
+        "type": "object",
+        "required": [
+          "address",
+          "contact"
+        ],
+        "properties": {
+          "contact": {
+            "$ref": "#/components/schemas/deliveries.businessContactModel"
+          },
+          "address": {
+            "$ref": "#/components/schemas/deliveries.addressModel"
+          },
+          "specialInstructions": {
+            "type": "string",
+            "example": "Call 123.",
+            "description": "Special pickup instructions"
+          },
+          "locationId": {
+            "type": "string",
+            "example": "01400025",
+            "description": "Pickup location identifier"
+          }
+        },
+        "description": "Delivery pick up information.",
+        "example": {
+          "address": {
+            "country": "USA",
+            "postalCode": "12345",
+            "locality": "Cincinnati",
+            "name": "Kroger Maineville Store",
+            "region": "OH",
+            "line2": "Unit 103",
+            "line1": "123 Some St"
+          },
+          "specialInstructions": "Call 123.",
+          "locationId": "01400025",
+          "contact": {
+            "emailAddress": "contact@company.com",
+            "phone": {
+              "number": "+11231231234",
+              "smsEnabled": true
+            },
+            "companyName": "ABC"
+          }
+        }
+      },
+      "deliveries.businessContactModel": {
+        "type": "object",
+        "required": [
+          "companyName",
+          "phone"
+        ],
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "example": "ABC",
+            "description": "Company name"
+          },
+          "emailAddress": {
+            "type": "string",
+            "format": "email",
+            "example": "contact@company.com",
+            "description": "Company email"
+          },
+          "phone": {
+            "$ref": "#/components/schemas/deliveries.phoneModel"
+          }
+        },
+        "example": {
+          "emailAddress": "contact@company.com",
+          "phone": {
+            "number": "+11231231234",
+            "smsEnabled": true
+          },
+          "companyName": "ABC"
+        }
+      },
+      "deliveries.personContactModel": {
+        "type": "object",
+        "required": [
+          "emailAddress",
+          "phone"
+        ],
+        "properties": {
+          "emailAddress": {
+            "type": "string",
+            "format": "email",
+            "example": "person@mail.com",
+            "description": "Email address"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John",
+            "description": "Contact first name"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Doe",
+            "description": "Contact last name"
+          },
+          "phone": {
+            "$ref": "#/components/schemas/deliveries.phoneModel"
+          }
+        },
+        "example": {
+          "firstName": "John",
+          "lastName": "Doe",
+          "emailAddress": "person@mail.com",
+          "phone": {
+            "number": "+11231231234",
+            "smsEnabled": true
+          }
+        }
+      },
+      "deliveries.phoneModel": {
+        "type": "object",
+        "required": [
+          "number",
+          "smsEnabled"
+        ],
+        "properties": {
+          "number": {
+            "type": "string",
+            "example": "+11231231234",
+            "description": "Phone number in ITU-T E.164 format"
+          },
+          "smsEnabled": {
+            "type": "boolean",
+            "example": true,
+            "description": "Sms enabled"
+          }
+        },
+        "example": {
+          "number": "+11231231234",
+          "smsEnabled": true
+        }
+      },
+      "deliveries.deliveryResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/deliveries.deliveryModel"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/deliveries.metaModel"
+          }
+        },
+        "example": {
+          "data": {
+            "createdAt": {
+              "timezone": "America/New_York",
+              "value": "2018-02-17T12:00Z"
+            },
+            "modifiedAt": {
+              "timezone": "America/New_York",
+              "value": "2018-02-17T12:00Z"
+            },
+            "id": "c6627fe6-5e39-41f5-b83c-5d586f7d034b",
+            "spec": {
+              "beginDate": {
+                "timezone": "America/New_York",
+                "value": "2018-02-17T12:00Z"
+              },
+              "orderNo": "1234567890",
+              "endDate": {
+                "timezone": "America/New_York",
+                "value": "2018-02-17T12:00Z"
+              },
+              "dropoff": {
+                "address": {
+                  "country": "USA",
+                  "postalCode": "12345",
+                  "locality": "Cincinnati",
+                  "name": "Kroger Maineville Store",
+                  "region": "OH",
+                  "line2": "Unit 103",
+                  "line1": "123 Some St"
+                },
+                "specialInstructions": "Knock the door",
+                "contact": {
+                  "firstName": "John",
+                  "lastName": "Doe",
+                  "emailAddress": "person@mail.com",
+                  "phone": {
+                    "number": "+11231231234",
+                    "smsEnabled": true
+                  }
+                },
+                "signatureRequired": true
+              },
+              "pickup": {
+                "address": {
+                  "country": "USA",
+                  "postalCode": "12345",
+                  "locality": "Cincinnati",
+                  "name": "Kroger Maineville Store",
+                  "region": "OH",
+                  "line2": "Unit 103",
+                  "line1": "123 Some St"
+                },
+                "specialInstructions": "Call 123.",
+                "locationId": "01400025",
+                "contact": {
+                  "emailAddress": "contact@company.com",
+                  "phone": {
+                    "number": "+11231231234",
+                    "smsEnabled": true
+                  },
+                  "companyName": "ABC"
+                }
+              },
+              "orderItems": [
+                {
+                  "unit": "Tote",
+                  "quantity": 12
+                },
+                {
+                  "unit": "Tote",
+                  "quantity": 12
+                }
+              ],
+              "includesAlcohol": false
+            },
+            "status": {
+              "courierName": "delivery-partner",
+              "driver": {
+                "firstName": "John",
+                "lastName": "Doe",
+                "vehicle": {
+                  "licensePlate": "ABC123",
+                  "year": "2018",
+                  "model": "Challenger",
+                  "make": "Dodge"
+                }
+              },
+              "trackingUrl": "https://trackingurl.com",
+              "cancellationNote": "Car is broken.",
+              "pickupEta": {
+                "timezone": "America/New_York",
+                "value": "2018-02-17T12:00Z"
+              },
+              "state": "PendingConfirmation",
+              "dropoffEta": {
+                "timezone": "America/New_York",
+                "value": "2018-02-17T12:00Z"
+              }
+            }
+          },
+          "meta": {
+            "filter": {
+              "followingAction": {
+                "equals": [
+                  "CONFIRM"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "deliveries.deliveriesResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "contains the primary data from the request.",
+            "items": {
+              "$ref": "#/components/schemas/deliveries.deliveryModel"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/deliveries.metaModel"
+          }
+        },
+        "example": {
+          "data": [
+            {
+              "createdAt": {
+                "timezone": "America/New_York",
+                "value": "2018-02-17T12:00Z"
+              },
+              "modifiedAt": {
+                "timezone": "America/New_York",
+                "value": "2018-02-17T12:00Z"
+              },
+              "id": "c6627fe6-5e39-41f5-b83c-5d586f7d034b",
+              "spec": {
+                "beginDate": {
+                  "timezone": "America/New_York",
+                  "value": "2018-02-17T12:00Z"
+                },
+                "orderNo": "1234567890",
+                "endDate": {
+                  "timezone": "America/New_York",
+                  "value": "2018-02-17T12:00Z"
+                },
+                "dropoff": {
+                  "address": {
+                    "country": "USA",
+                    "postalCode": "12345",
+                    "locality": "Cincinnati",
+                    "name": "Kroger Maineville Store",
+                    "region": "OH",
+                    "line2": "Unit 103",
+                    "line1": "123 Some St"
+                  },
+                  "specialInstructions": "Knock the door",
+                  "contact": {
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "emailAddress": "person@mail.com",
+                    "phone": {
+                      "number": "+11231231234",
+                      "smsEnabled": true
+                    }
+                  },
+                  "signatureRequired": true
+                },
+                "pickup": {
+                  "address": {
+                    "country": "USA",
+                    "postalCode": "12345",
+                    "locality": "Cincinnati",
+                    "name": "Kroger Maineville Store",
+                    "region": "OH",
+                    "line2": "Unit 103",
+                    "line1": "123 Some St"
+                  },
+                  "specialInstructions": "Call 123.",
+                  "locationId": "01400025",
+                  "contact": {
+                    "emailAddress": "contact@company.com",
+                    "phone": {
+                      "number": "+11231231234",
+                      "smsEnabled": true
+                    },
+                    "companyName": "ABC"
+                  }
+                },
+                "orderItems": [
+                  {
+                    "unit": "Tote",
+                    "quantity": 12
+                  },
+                  {
+                    "unit": "Tote",
+                    "quantity": 12
+                  }
+                ],
+                "includesAlcohol": false
+              },
+              "status": {
+                "courierName": "delivery-partner",
+                "driver": {
+                  "firstName": "John",
+                  "lastName": "Doe",
+                  "vehicle": {
+                    "licensePlate": "ABC123",
+                    "year": "2018",
+                    "model": "Challenger",
+                    "make": "Dodge"
+                  }
+                },
+                "trackingUrl": "https://trackingurl.com",
+                "cancellationNote": "Car is broken.",
+                "pickupEta": {
+                  "timezone": "America/New_York",
+                  "value": "2018-02-17T12:00Z"
+                },
+                "state": "PendingConfirmation",
+                "dropoffEta": {
+                  "timezone": "America/New_York",
+                  "value": "2018-02-17T12:00Z"
+                }
+              }
+            },
+            {
+              "createdAt": {
+                "timezone": "America/New_York",
+                "value": "2018-02-17T12:00Z"
+              },
+              "modifiedAt": {
+                "timezone": "America/New_York",
+                "value": "2018-02-17T12:00Z"
+              },
+              "id": "c6627fe6-5e39-41f5-b83c-5d586f7d034b",
+              "spec": {
+                "beginDate": {
+                  "timezone": "America/New_York",
+                  "value": "2018-02-17T12:00Z"
+                },
+                "orderNo": "1234567890",
+                "endDate": {
+                  "timezone": "America/New_York",
+                  "value": "2018-02-17T12:00Z"
+                },
+                "dropoff": {
+                  "address": {
+                    "country": "USA",
+                    "postalCode": "12345",
+                    "locality": "Cincinnati",
+                    "name": "Kroger Maineville Store",
+                    "region": "OH",
+                    "line2": "Unit 103",
+                    "line1": "123 Some St"
+                  },
+                  "specialInstructions": "Knock the door",
+                  "contact": {
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "emailAddress": "person@mail.com",
+                    "phone": {
+                      "number": "+11231231234",
+                      "smsEnabled": true
+                    }
+                  },
+                  "signatureRequired": true
+                },
+                "pickup": {
+                  "address": {
+                    "country": "USA",
+                    "postalCode": "12345",
+                    "locality": "Cincinnati",
+                    "name": "Kroger Maineville Store",
+                    "region": "OH",
+                    "line2": "Unit 103",
+                    "line1": "123 Some St"
+                  },
+                  "specialInstructions": "Call 123.",
+                  "locationId": "01400025",
+                  "contact": {
+                    "emailAddress": "contact@company.com",
+                    "phone": {
+                      "number": "+11231231234",
+                      "smsEnabled": true
+                    },
+                    "companyName": "ABC"
+                  }
+                },
+                "orderItems": [
+                  {
+                    "unit": "Tote",
+                    "quantity": 12
+                  },
+                  {
+                    "unit": "Tote",
+                    "quantity": 12
+                  }
+                ],
+                "includesAlcohol": false
+              },
+              "status": {
+                "courierName": "delivery-partner",
+                "driver": {
+                  "firstName": "John",
+                  "lastName": "Doe",
+                  "vehicle": {
+                    "licensePlate": "ABC123",
+                    "year": "2018",
+                    "model": "Challenger",
+                    "make": "Dodge"
+                  }
+                },
+                "trackingUrl": "https://trackingurl.com",
+                "cancellationNote": "Car is broken.",
+                "pickupEta": {
+                  "timezone": "America/New_York",
+                  "value": "2018-02-17T12:00Z"
+                },
+                "state": "PendingConfirmation",
+                "dropoffEta": {
+                  "timezone": "America/New_York",
+                  "value": "2018-02-17T12:00Z"
+                }
+              }
+            }
+          ],
+          "meta": {
+            "filter": {
+              "followingAction": {
+                "equals": [
+                  "CONFIRM"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "deliveries.metaModel": {
+        "type": "object",
+        "properties": {
+          "filter": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "description": "Metadata used to include information about the resources returned in the data section.",
+        "example": {
+          "filter": {
+            "followingAction": {
+              "equals": [
+                "CONFIRM"
+              ]
+            }
+          }
+        }
+      },
+      "deliveries.orderItemModel": {
+        "type": "object",
+        "required": [
+          "quantity",
+          "unit"
+        ],
+        "properties": {
+          "unit": {
+            "type": "string",
+            "example": "Tote",
+            "description": "Item unit description.\nPossible values:\n* *Tote*\n* *Oversized*"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 12,
+            "description": "Number of units."
+          }
+        },
+        "description": "Item data used to help determine total order size.",
+        "example": {
+          "unit": "Tote",
+          "quantity": 12
+        }
+      },
+      "deliveries.apiError": {
+        "type": "object",
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      },
+      "deliveries.rootCauseModel": {
+        "type": "object",
+        "required": [
+          "root_cause"
+        ],
+        "properties": {
+          "root_cause": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/deliveries.errorModel"
+            }
+          }
+        }
+      },
+      "deliveries.errorModel": {
+        "type": "object",
+        "required": [
+          "code",
+          "datetime",
+          "reason"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "datetime": {
+            "$ref": "#/components/schemas/deliveries.datetimeModel"
+          }
+        }
+      },
+      "deliveries.badRequestError": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/deliveries.apiError"
+          },
+          {
+            "type": "object",
+            "example": {
+              "code": "BadRequestException",
+              "reason": "The request body invalid",
+              "datetime": {
+                "value": "2018-02-17T12:00Z",
+                "timezone": "America/New_York"
+              },
+              "cause": {
+                "code": "SomeInnerException",
+                "reason": "Something went wrong",
+                "datetime": {
+                  "value": "2018-02-17T12:00Z",
+                  "timezone": "America/New_York"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "deliveries.unauthorizedError": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/deliveries.apiError"
+          },
+          {
+            "type": "object",
+            "example": {
+              "code": "UnauthorizedException",
+              "reason": "Authentication token invalid",
+              "datetime": {
+                "value": "2018-02-17T12:00Z",
+                "timezone": "America/New_York"
+              },
+              "cause": {
+                "code": "SomeInnerException",
+                "reason": "Something went wrong",
+                "datetime": {
+                  "value": "2018-02-17T12:00Z",
+                  "timezone": "America/New_York"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "deliveries.forbiddenError": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/deliveries.apiError"
+          },
+          {
+            "type": "object",
+            "example": {
+              "code": "ForbiddenException",
+              "reason": "Access denied",
+              "datetime": {
+                "value": "2018-02-17T12:00Z",
+                "timezone": "America/New_York"
+              },
+              "cause": {
+                "code": "SomeInnerException",
+                "reason": "Something went wrong",
+                "datetime": {
+                  "value": "2018-02-17T12:00Z",
+                  "timezone": "America/New_York"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "deliveries.notFoundError": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/deliveries.apiError"
+          },
+          {
+            "type": "object",
+            "example": {
+              "code": "NotFoundException",
+              "reason": "The requested resource not found",
+              "datetime": {
+                "value": "2018-02-17T12:00Z",
+                "timezone": "America/New_York"
+              },
+              "cause": {
+                "code": "ResourceNotFoundException",
+                "reason": "The requested resource not found",
+                "datetime": {
+                  "value": "2018-02-17T12:00Z",
+                  "timezone": "America/New_York"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "deliveries.internalServerError": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/deliveries.apiError"
+          },
+          {
+            "type": "object",
+            "example": {
+              "code": "InternalServerError",
+              "reason": "Some unexpected error occurred",
+              "datetime": {
+                "value": "2018-02-17T12:00Z",
+                "timezone": "America/New_York"
+              },
+              "cause": {
+                "code": "SomeInnerException",
+                "reason": "Something went wrong",
+                "datetime": {
+                  "value": "2018-02-17T12:00Z",
+                  "timezone": "America/New_York"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "APIError": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      },
+      "RootCauseModel": {
+        "type": "object",
+        "properties": {
+          "root_cause": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorModel"
+            }
+          }
+        }
+      },
+      "MetadataModel": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer"
+          },
+          "pageSize": {
+            "type": "integer"
+          },
+          "totalCount": {
+            "type": "integer"
+          },
+          "totalPages": {
+            "type": "integer"
+          }
+        },
+        "example": {
+          "totalPages": 5,
+          "pageSize": 6,
+          "page": 0,
+          "totalCount": 1
+        }
+      },
+      "MetaModel": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "$ref": "#/components/schemas/MetaModel_pagination"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "pagination": {
+            "total": 1.4658129805029452,
+            "start": 0.8008281904610115,
+            "limit": 6.027456183070403
+          },
+          "warnings": [
+            "warnings",
+            "warnings"
+          ]
+        }
+      },
+      "ErrorModel": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "number"
+          }
+        }
+      },
+      "identity.profileModel_data": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "53990804-cfd1-43f3-8256-bdc9817a4fd0"
+          },
+          "firstName": {
+            "type": "string",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "noreply@kroger.com"
+          },
+          "phoneNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/identity.profilePhoneNumberModel"
+            }
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/identity.profileAddressModel"
+            }
+          },
+          "loyalty": {
+            "$ref": "#/components/schemas/identity.profileLoyaltyModel"
+          }
+        },
+        "example": {
+          "firstName": "John",
+          "lastName": "Doe",
+          "addresses": [
+            {
+              "city": "Cincinnati",
+              "countryCode": "US",
+              "addressType": "home",
+              "postalCode": "45202",
+              "addressLine1": "1014 Vine St.",
+              "addressLine2": "",
+              "stateCode": "OH"
+            },
+            {
+              "city": "Cincinnati",
+              "countryCode": "US",
+              "addressType": "home",
+              "postalCode": "45202",
+              "addressLine1": "1014 Vine St.",
+              "addressLine2": "",
+              "stateCode": "OH"
+            }
+          ],
+          "loyalty": {
+            "cardNumber": "0123456789"
+          },
+          "id": "53990804-cfd1-43f3-8256-bdc9817a4fd0",
+          "email": "noreply@kroger.com",
+          "phoneNumbers": [
+            {
+              "type": "home",
+              "value": "555-555-5555"
+            },
+            {
+              "type": "home",
+              "value": "555-555-5555"
+            }
+          ]
+        }
+      },
+      "identity.profileLoyaltyResponseModel_data": {
+        "properties": {
+          "loyalty": {
+            "$ref": "#/components/schemas/identity.profileLoyaltyModel"
+          }
+        },
+        "example": {
+          "loyalty": {
+            "cardNumber": "0123456789"
+          }
+        }
+      },
+      "deliveries.deliveryDriverInformationModel_vehicle": {
+        "properties": {
+          "make": {
+            "type": "string",
+            "example": "Dodge",
+            "description": "Vehicle make"
+          },
+          "model": {
+            "type": "string",
+            "example": "Challenger",
+            "description": "Vehicle model"
+          },
+          "year": {
+            "type": "string",
+            "example": "2018",
+            "description": "Year of car manufacture"
+          },
+          "licensePlate": {
+            "type": "string",
+            "example": "ABC123",
+            "description": "License plate"
+          }
+        },
+        "description": "Vehicle used for delivering",
+        "example": {
+          "licensePlate": "ABC123",
+          "year": "2018",
+          "model": "Challenger",
+          "make": "Dodge"
+        }
+      },
+      "MetaModel_pagination": {
+        "properties": {
+          "start": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "example": {
+          "total": 1.4658129805029452,
+          "start": 0.8008281904610115,
+          "limit": 6.027456183070403
+        }
+      }
+    }
+  }
+}
